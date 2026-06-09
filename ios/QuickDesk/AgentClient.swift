@@ -44,10 +44,7 @@ struct AgentClient {
     // MARK: - Endpoints
 
     private static func baseURL(host: String, port: Int) -> URL? {
-        if host.hasPrefix("http://") || host.hasPrefix("https://") {
-            return URL(string: host.trimmingCharacters(in: CharacterSet(charactersIn: "/")))
-        }
-        return URL(string: "http://\(host):\(port)")
+        Computer.endpointURL(host: host, port: port)
     }
 
     private static func url(_ path: String, host: String, port: Int) -> URL? {

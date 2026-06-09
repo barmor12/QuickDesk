@@ -13,10 +13,7 @@ struct Computer: Codable, Identifiable, Hashable {
     var isActive: Bool = true
 
     var baseURL: URL? {
-        if host.hasPrefix("http://") || host.hasPrefix("https://") {
-            return URL(string: host.trimmingCharacters(in: CharacterSet(charactersIn: "/")))
-        }
-        return URL(string: "http://\(host):\(port)")
+        Computer.endpointURL(host: host, port: port)
     }
 
     var wsURL: URL? {
@@ -32,6 +29,20 @@ struct Computer: Codable, Identifiable, Hashable {
         copy.host = host
         copy.port = port
         return copy
+    }
+
+    static func endpointURL(host rawHost: String, port: Int) -> URL? {
+        let trimmed = rawHost.trimmingCharacters(in: .whitespacesAndNewlines)
+            .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        guard !trimmed.isEmpty else { return nil }
+
+        if trimmed.hasPrefix("http://") || trimmed.hasPrefix("https://") {
+            guard var components = URLComponents(string: trimmed) else { return nil }
+            if components.port == nil { components.port = port }
+            return components.url
+        }
+
+        return URL(string: "http://\(trimmed):\(port)")
     }
 }
 

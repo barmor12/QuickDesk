@@ -157,6 +157,7 @@
 			buildConfigurationList = 093ED097AD129A6AD15B07A2 /* Build configuration list for PBXNativeTarget "QuickDeskWatch" */;
 			buildPhases = (
 				F33D00ACE37EAC56B87EF236 /* Sources */,
+				E12188AE7E7742C9A7784AA1 /* Resources */,
 			);
 			buildRules = (
 			);
