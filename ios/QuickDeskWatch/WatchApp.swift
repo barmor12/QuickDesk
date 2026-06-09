@@ -20,12 +20,12 @@ struct WatchRootView: View {
             ScrollView {
                 if state.tasks.isEmpty {
                     VStack(spacing: 10) {
-                        Image(systemName: "bolt.slash")
+                        Image(systemName: state.isConnected ? "checkmark.circle.fill" : "bolt.slash")
                             .font(.title2)
-                            .foregroundStyle(.secondary)
-                        Text("No tasks")
+                            .foregroundStyle(state.isConnected ? .teal : .secondary)
+                        Text(state.isConnected ? "Agent connected" : "No tasks")
                             .font(.headline)
-                        Text("Open QuickDesk on iPhone to sync.")
+                        Text(emptyMessage)
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
@@ -38,13 +38,13 @@ struct WatchRootView: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("QuickDesk")
                                     .font(.headline)
-                                Text("\(state.tasks.count) workflows ready")
+                                Text(state.isConnected ? "\(state.tasks.count) workflows ready" : "Syncing with iPhone")
                                     .font(.caption2)
                                     .foregroundStyle(.secondary)
                             }
                             Spacer()
-                            Image(systemName: "bolt.fill")
-                                .foregroundStyle(.teal)
+                            Image(systemName: state.isConnected ? "bolt.fill" : "iphone.slash")
+                                .foregroundStyle(state.isConnected ? .teal : .orange)
                         }
                         ForEach(state.tasks) { task in
                             WatchTaskButton(task: task,
@@ -68,6 +68,14 @@ struct WatchRootView: View {
                              set: { if $0 == nil { state.currentApproval = nil } })) { approval in
             ApprovalSheet(approval: approval)
         }
+    }
+
+    private var emptyMessage: String {
+        if state.isConnected {
+            return state.computerName.map { "\($0) is online. Add favorite tasks on iPhone." } ??
+                   "Computer is online. Add favorite tasks on iPhone."
+        }
+        return "Open QuickDesk on iPhone to sync."
     }
 }
 

@@ -10,6 +10,9 @@ final class WatchState {
     var currentApproval: ApprovalRequest?     // shown as a sheet when set
     var lastStatus: String?                   // brief result toast
     var busyTaskID: String?
+    var isConnected = false
+    var computerName: String?
+    var computerAddress: String?
 
     private let session = WatchSessionManager.shared
 
@@ -35,6 +38,9 @@ final class WatchState {
     // pending approval is surfaced as a sheet; tasks fill the main list.
     func didReceiveState(_ payload: SyncPayload) {
         self.tasks = payload.tasks
+        self.isConnected = payload.isConnected
+        self.computerName = payload.computerName
+        self.computerAddress = payload.computerAddress
         if let first = payload.approvals.first {
             if currentApproval?.id != first.id { currentApproval = first }
         } else {

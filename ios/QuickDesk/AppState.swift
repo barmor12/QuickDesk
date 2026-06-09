@@ -89,7 +89,10 @@ final class AppState {
         socket?.disconnect()
         socket = nil
         isConnected = false
-        guard let computer = selectedComputer else { return }
+        guard let computer = selectedComputer else {
+            pushStateToWatch()
+            return
+        }
 
         let sock = AgentSocket(computer: computer)
         sock.onEvent = { [weak self] event in
@@ -98,6 +101,7 @@ final class AppState {
         sock.connect()
         socket = sock
         isConnected = true
+        pushStateToWatch()
 
         Task {
             await registerPushTokenIfPossible()
@@ -122,15 +126,25 @@ final class AppState {
         }
     }
 
-    /// Send the current tasks + pending approvals to the watch.
-    func pushStateToWatch() {
+    /// Current phone state represented as one reliable watch payload.
+    func watchPayload() -> SyncPayload {
         let favoriteTasks = tasks.sorted { lhs, rhs in
             let lf = favoriteTaskIDs.contains(lhs.id)
             let rf = favoriteTaskIDs.contains(rhs.id)
             if lf != rf { return lf && !rf }
             return lhs.name < rhs.name
         }
-        session.pushState(tasks: favoriteTasks, approvals: pendingApprovals)
+        let address = selectedComputer.map { "\($0.host):\($0.port)" }
+        return SyncPayload(tasks: favoriteTasks,
+                           approvals: pendingApprovals,
+                           isConnected: isConnected,
+                           computerName: selectedComputer?.name,
+                           computerAddress: address)
+    }
+
+    /// Send the current tasks + pending approvals + connection status to the watch.
+    func pushStateToWatch() {
+        session.pushState(payload: watchPayload())
     }
 
     func isFavorite(_ task: AgentTask) -> Bool {
@@ -163,14 +177,15 @@ final class AppState {
             let newApprovals = approvals.filter { incoming in
                 !pendingApprovals.contains { $0.id == incoming.id }
             }
+            isConnected = true
+            lastError = nil
             pendingApprovals = approvals
             newApprovals.forEach(notifyApproval)
             pushStateToWatch()               // keep watch in sync
-            isConnected = true
-            lastError = nil
         } catch {
             lastError = error.localizedDescription
             isConnected = false
+            pushStateToWatch()
         }
     }
 

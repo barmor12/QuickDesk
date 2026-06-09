@@ -22,9 +22,9 @@ final class PhoneSessionManager: NSObject, WCSessionDelegate {
     /// updateApplicationContext (reliable, latest-state-wins) so approvals
     /// arrive even when the watch isn't "reachable", plus a live sendMessage
     /// for immediacy when it is.
-    func pushState(tasks: [AgentTask], approvals: [ApprovalRequest]) {
+    func pushState(payload: SyncPayload) {
         guard session.activationState == .activated else { return }
-        let msg = WatchMessage.encode(.state, SyncPayload(tasks: tasks, approvals: approvals))
+        let msg = WatchMessage.encode(.state, payload)
         try? session.updateApplicationContext(msg)
         if session.isReachable {
             session.sendMessage(msg, replyHandler: nil, errorHandler: nil)
@@ -73,7 +73,7 @@ final class PhoneSessionManager: NSObject, WCSessionDelegate {
         case .requestSync:
             Task { @MainActor in
                 guard let s = self.appState else { return }
-                self.pushState(tasks: s.tasks, approvals: s.pendingApprovals)
+                self.pushState(payload: s.watchPayload())
             }
         case .execute:
             if let (_, req) = WatchMessage.decode(message, as: ExecuteRequest.self) {
@@ -96,7 +96,13 @@ final class PhoneSessionManager: NSObject, WCSessionDelegate {
 
     // MARK: - Required delegate stubs
 
-    func session(_ session: WCSession, activationDidCompleteWith state: WCSessionActivationState, error: Error?) {}
+    func session(_ session: WCSession, activationDidCompleteWith state: WCSessionActivationState, error: Error?) {
+        guard state == .activated else { return }
+        Task { @MainActor in
+            guard let s = self.appState else { return }
+            self.pushState(payload: s.watchPayload())
+        }
+    }
     func sessionDidBecomeInactive(_ session: WCSession) {}
     func sessionDidDeactivate(_ session: WCSession) { session.activate() }
 }

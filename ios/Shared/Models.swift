@@ -120,6 +120,9 @@ enum WatchMessageType: String, Codable {
 struct SyncPayload: Codable {
     var tasks: [AgentTask]
     var approvals: [ApprovalRequest]
+    var isConnected: Bool = false
+    var computerName: String?
+    var computerAddress: String?
 }
 
 enum WatchMessage {
