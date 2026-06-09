@@ -12,8 +12,20 @@ struct Computer: Codable, Identifiable, Hashable {
     var token: String       // bearer token for this client
     var isActive: Bool = true
 
-    var baseURL: URL? { URL(string: "http://\(host):\(port)") }
-    var wsURL: URL? { URL(string: "ws://\(host):\(port)/ws?token=\(token)") }
+    var baseURL: URL? {
+        if host.hasPrefix("http://") || host.hasPrefix("https://") {
+            return URL(string: host.trimmingCharacters(in: CharacterSet(charactersIn: "/")))
+        }
+        return URL(string: "http://\(host):\(port)")
+    }
+
+    var wsURL: URL? {
+        guard var components = baseURL.flatMap({ URLComponents(url: $0, resolvingAgainstBaseURL: false) }) else { return nil }
+        components.scheme = components.scheme == "https" ? "wss" : "ws"
+        components.path = "/ws"
+        components.queryItems = [URLQueryItem(name: "token", value: token)]
+        return components.url
+    }
 
     func resolved(host: String, port: Int) -> Computer {
         var copy = self

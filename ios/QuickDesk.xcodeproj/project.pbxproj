@@ -56,6 +56,7 @@
 		31EAD38A748E44D990DBA9E6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		40202A4DF41AAAE882AA627E /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
 		46C37368F5F8AAAE20CA6CB1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		4D0F0D02C228421AA7A00F2E /* QuickDesk.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QuickDesk.entitlements; sourceTree = "<group>"; };
 		56B7CF54F33673A28DEE615B /* AgentSocket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentSocket.swift; sourceTree = "<group>"; };
 		65F621E62B4E44FB9365EB7D /* AgentDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentDiscovery.swift; sourceTree = "<group>"; };
 		74C6E6EAC34F225F58E25D36 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -119,6 +120,7 @@
 				56B7CF54F33673A28DEE615B /* AgentSocket.swift */,
 				EE31E3B19CFB08E2A7FA0E30 /* AppState.swift */,
 				46C37368F5F8AAAE20CA6CB1 /* Info.plist */,
+				4D0F0D02C228421AA7A00F2E /* QuickDesk.entitlements */,
 				40202A4DF41AAAE882AA627E /* Persistence.swift */,
 				CDD1A85DB59A0E0DE062CD88 /* PhoneSessionManager.swift */,
 				94000E362D414E74F6F7D2A4 /* QuickDeskApp.swift */,
@@ -155,7 +157,6 @@
 			buildConfigurationList = 093ED097AD129A6AD15B07A2 /* Build configuration list for PBXNativeTarget "QuickDeskWatch" */;
 			buildPhases = (
 				F33D00ACE37EAC56B87EF236 /* Sources */,
-				E12188AE7E7742C9A7784AA1 /* Resources */,
 			);
 			buildRules = (
 			);

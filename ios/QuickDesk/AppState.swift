@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import UserNotifications
 
 /// Central app state for the iPhone app. Owns the computer list, the active
 /// agent connection (HTTP + WebSocket), tasks, logs, and live approvals, and
@@ -18,6 +19,8 @@ final class AppState {
 
     private var socket: AgentSocket?
     private let session = PhoneSessionManager.shared
+    private var pushDeviceToken: String?
+    private var pushTokenObserver: NSObjectProtocol?
 
     var selectedComputer: Computer? {
         computers.first { $0.id == selectedComputerID }
@@ -29,6 +32,18 @@ final class AppState {
         favoriteTaskIDs = Persistence.loadFavoriteTaskIDs()
         session.appState = self
         session.activate()
+        pushTokenObserver = NotificationCenter.default.addObserver(
+            forName: .quickDeskRemotePushToken,
+            object: nil,
+            queue: .main
+        ) { [weak self] notification in
+            guard let token = notification.object as? String else { return }
+            Task { @MainActor in
+                self?.pushDeviceToken = token
+                await self?.registerPushTokenIfPossible()
+            }
+        }
+        requestNotificationPermission()
         if selectedComputer != nil { connect() }
     }
 
@@ -84,7 +99,10 @@ final class AppState {
         socket = sock
         isConnected = true
 
-        Task { await refresh() }
+        Task {
+            await registerPushTokenIfPossible()
+            await refresh()
+        }
     }
 
     private func handle(_ event: AgentSocket.Event) {
@@ -92,6 +110,7 @@ final class AppState {
         case .approvalCreated(let a):
             if !pendingApprovals.contains(where: { $0.id == a.id }) {
                 pendingApprovals.append(a)
+                notifyApproval(a)
             }
             pushStateToWatch()               // push tasks + approvals to watch
         case .approvalResolved(let a):
@@ -140,6 +159,12 @@ final class AppState {
         do {
             tasks = try await client.fetchTasks()
             logs = try await client.fetchLogs()
+            let approvals = try await client.fetchApprovals()
+            let newApprovals = approvals.filter { incoming in
+                !pendingApprovals.contains { $0.id == incoming.id }
+            }
+            pendingApprovals = approvals
+            newApprovals.forEach(notifyApproval)
             pushStateToWatch()               // keep watch in sync
             isConnected = true
             lastError = nil
@@ -172,5 +197,32 @@ final class AppState {
         } catch {
             lastError = error.localizedDescription
         }
+    }
+
+    private func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
+    }
+
+    private func registerPushTokenIfPossible() async {
+        guard let computer = selectedComputer, let pushDeviceToken else { return }
+        do {
+            try await AgentClient(computer: computer).registerPushToken(pushDeviceToken)
+        } catch {
+            lastError = error.localizedDescription
+        }
+    }
+
+    private func notifyApproval(_ approval: ApprovalRequest) {
+        let content = UNMutableNotificationContent()
+        content.title = approval.title
+        content.body = approval.summary.isEmpty ? "QuickDesk approval is waiting." : approval.summary
+        content.sound = .default
+
+        let request = UNNotificationRequest(
+            identifier: "quickdesk.approval.\(approval.id)",
+            content: content,
+            trigger: nil
+        )
+        UNUserNotificationCenter.current().add(request)
     }
 }

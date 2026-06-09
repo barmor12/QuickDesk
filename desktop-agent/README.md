@@ -31,6 +31,24 @@ The one-time code remains a manual fallback if Bonjour discovery is unavailable.
 - Disable automatic local pairing: `QUICKDESK_AUTO_PAIRING=0 npm start`.
 - Tests: `npm test`.
 
+## Apple Push Notifications
+
+For true push notifications while the iPhone is on 5G or the app is closed,
+configure the agent with an Apple Developer APNs key:
+
+```bash
+export QUICKDESK_APNS_KEY_ID="ABC123DEFG"
+export QUICKDESK_APNS_TEAM_ID="YOUR_TEAM_ID"
+export QUICKDESK_APNS_KEY_PATH="$HOME/AuthKey_ABC123DEFG.p8"
+export QUICKDESK_APNS_TOPIC="com.barmor.quickdesk"
+export QUICKDESK_APNS_ENV="sandbox"
+npm start
+```
+
+Use `production` for `QUICKDESK_APNS_ENV` only for TestFlight/App Store builds.
+Xcode development installs use `sandbox`. APNs requires a paid Apple Developer
+Program team; personal development teams cannot create push-enabled profiles.
+
 ## Run continuously (launchd service)
 
 The agent is installed as a per-user launchd service so it starts at login,
@@ -78,6 +96,7 @@ confirmation from the phone/watch before running.
 | GET    | `/approvals`              | yes  | List pending approvals        |
 | GET    | `/approvals/:id?wait=1`   | yes  | Long-poll for a decision      |
 | POST   | `/approvals/:id/decision` | yes  | Allow/deny an approval        |
+| POST   | `/push/register`          | yes  | Register iPhone APNs token    |
 | WS     | `/ws?token=…`             | yes  | Live events to the phone      |
 
 Auth is `Authorization: Bearer <token>` — a per-phone token from `/pair`, or the

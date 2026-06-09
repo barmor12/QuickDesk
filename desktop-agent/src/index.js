@@ -15,6 +15,7 @@ import {
   completeAutoPairing,
   requireAuth,
   resetPairedClients,
+  updateClientPushRegistration,
 } from "./auth.js";
 import { executeTask } from "./executor.js";
 import { startLog, finishLog, listLogs } from "./logger.js";
@@ -26,6 +27,7 @@ import {
   waitForDecision,
   publicView,
 } from "./approvals.js";
+import { apnsStatus, sendApprovalPush } from "./apns.js";
 
 const { Bonjour } = bonjourService;
 
@@ -73,7 +75,9 @@ function localStatus() {
       id: client.id,
       name: client.name,
       pairedAt: client.pairedAt,
+      pushEnabled: Boolean(client.push?.deviceToken),
     })),
+    push: apnsStatus(),
     connectedPhones: wsClients.size,
     pid: process.pid,
     version: "1.0.0",
@@ -248,12 +252,13 @@ app.get("/local", requireLocal, (_req, res) => {
         fact("Name", data.agent.name),
         fact("Port", data.port),
         fact("Auto pairing", data.autoPairing ? "Enabled" : "Disabled"),
+        fact("APNs push", data.push.configured ? "Configured (" + data.push.environment + ")" : "Not configured"),
         fact("Pairing code", data.pairingArmed ? "Active" : "Not active"),
         fact("Connected phones", data.connectedPhones),
         fact("PID", data.pid)
       ].join("");
       clients.innerHTML = data.pairedClients.length
-        ? data.pairedClients.map((client) => '<div class="item"><strong>' + client.name + '</strong><small>' + client.pairedAt + '</small></div>').join("")
+        ? data.pairedClients.map((client) => '<div class="item"><strong>' + client.name + '</strong><small>' + client.pairedAt + ' · Push ' + (client.pushEnabled ? 'ready' : 'not registered') + '</small></div>').join("")
         : '<p>No paired devices yet.</p>';
       addresses.textContent = data.lanUrls.length
         ? "If discovery does not show up on the iPhone, enter one of these manually: " + data.lanUrls.map((url) => url.replace("http://", "")).join(" or ")
@@ -363,6 +368,19 @@ app.get("/logs", requireAuth, (req, res) => {
   res.json({ logs: listLogs(limit) });
 });
 
+app.post("/push/register", requireAuth, (req, res) => {
+  const deviceToken = String(req.body?.deviceToken || "").replace(/[^a-fA-F0-9]/g, "");
+  if (!deviceToken) {
+    return res.status(400).json({ error: "device_token_required" });
+  }
+  const client = updateClientPushRegistration(req.client.id, {
+    deviceToken,
+    environment: req.body?.environment || "sandbox",
+  });
+  if (!client) return res.status(404).json({ error: "client_not_found" });
+  res.json({ ok: true, push: { registered: true, configured: apnsStatus().configured } });
+});
+
 // --- Approvals (Claude/Codex permission prompts forwarded to the watch) ----
 
 // Created by a local helper (the Claude PreToolUse hook). Pushed live to
@@ -373,6 +391,7 @@ app.post("/approvals", requireAuth, (req, res) => {
     { title, summary, detail, tool, cwd, source },
     { onChange: broadcast }
   );
+  sendPushesForApproval(publicView(approval));
   res.status(201).json({ approval: publicView(approval) });
 });
 
@@ -434,6 +453,18 @@ function localAddresses() {
     }
   }
   return out;
+}
+
+function sendPushesForApproval(approval) {
+  const current = loadIdentity();
+  const pushClients = current.pairedClients.filter((client) => client.push?.deviceToken);
+  for (const client of pushClients) {
+    sendApprovalPush(client.push.deviceToken, approval).then((result) => {
+      if (!result.ok && !result.skipped) {
+        console.error(`[apns] push failed for ${client.name}:`, result);
+      }
+    });
+  }
 }
 
 server.listen(PORT, HOST, () => {

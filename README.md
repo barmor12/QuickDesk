@@ -90,6 +90,55 @@ Auto-pairing is enabled by default on the local network. Disable it with:
 QUICKDESK_AUTO_PAIRING=0 npm start
 ```
 
+## Using QuickDesk Away From Home Wi-Fi
+
+Bonjour discovery and private LAN IP addresses only work when the iPhone and Mac are on the same network. If your iPhone switches to 5G, addresses like `192.168.x.x` will not be reachable.
+
+Recommended remote options:
+
+### Option 1: Tailscale
+
+1. Install Tailscale on the Mac and iPhone.
+2. Keep the QuickDesk agent running on the Mac.
+3. In QuickDesk on iPhone, add the Mac using its Tailscale IP or MagicDNS name.
+4. Use port `7420`.
+
+Example:
+
+```text
+100.x.y.z
+macbook-name.tailnet-name.ts.net
+```
+
+### Option 2: HTTPS Tunnel
+
+Expose the local agent through a trusted HTTPS tunnel such as Cloudflare Tunnel. Then add the full tunnel URL in QuickDesk:
+
+```text
+https://quickdesk.example.com
+```
+
+Do not expose the agent directly to the public internet without authentication and transport security.
+
+### Notifications on 5G
+
+The app receives approval prompts through a live WebSocket connection while the iPhone app can reach the agent. It also pulls pending approvals when the app refreshes.
+
+For true push notifications while the iPhone app is closed, configure Apple Push Notifications on the desktop agent:
+
+```bash
+export QUICKDESK_APNS_KEY_ID="ABC123DEFG"
+export QUICKDESK_APNS_TEAM_ID="YOUR_TEAM_ID"
+export QUICKDESK_APNS_KEY_PATH="$HOME/AuthKey_ABC123DEFG.p8"
+export QUICKDESK_APNS_TOPIC="com.barmor.quickdesk"
+export QUICKDESK_APNS_ENV="sandbox" # use production for TestFlight/App Store builds
+npm start
+```
+
+The iPhone app registers its APNs device token with the paired agent automatically. The agent status page shows whether APNs is configured and whether each phone has registered a push token.
+
+Apple Push Notifications require a paid Apple Developer Program team, the Push Notifications capability for the app identifier, and a provisioning profile that includes the `aps-environment` entitlement. Personal development teams do not support APNs.
+
 ## Tasks
 
 Tasks live in:

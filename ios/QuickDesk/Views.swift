@@ -707,7 +707,7 @@ struct AddComputerView: View {
                         .disabled(scanning)
                 }
                 Section("Agent address") {
-                    TextField("IP or hostname", text: $host)
+                    TextField("IP, hostname, or https:// URL", text: $host)
                         .textInputAutocapitalization(.never).autocorrectionDisabled()
                     TextField("Port", text: $port).keyboardType(.numberPad)
                 }

@@ -43,6 +43,18 @@ struct AgentClient {
 
     // MARK: - Endpoints
 
+    private static func baseURL(host: String, port: Int) -> URL? {
+        if host.hasPrefix("http://") || host.hasPrefix("https://") {
+            return URL(string: host.trimmingCharacters(in: CharacterSet(charactersIn: "/")))
+        }
+        return URL(string: "http://\(host):\(port)")
+    }
+
+    private static func url(_ path: String, host: String, port: Int) -> URL? {
+        guard let base = baseURL(host: host, port: port) else { return nil }
+        return URL(string: path, relativeTo: base)
+    }
+
     struct HealthResponse: Codable {
         struct Agent: Codable { var id: String; var name: String; var os: String }
         var ok: Bool; var agent: Agent; var pairingArmed: Bool?; var autoPairing: Bool?
@@ -50,7 +62,7 @@ struct AgentClient {
 
     /// Static health check used before pairing (no token yet).
     static func health(host: String, port: Int) async throws -> HealthResponse {
-        guard let url = URL(string: "http://\(host):\(port)/health") else { throw ClientError.badURL }
+        guard let url = url("/health", host: host, port: port) else { throw ClientError.badURL }
         var req = URLRequest(url: url); req.timeoutInterval = 8
         let (data, resp) = try await URLSession.shared.data(for: req)
         guard let http = resp as? HTTPURLResponse, http.statusCode == 200 else { throw ClientError.decoding }
@@ -64,7 +76,7 @@ struct AgentClient {
 
     /// Pair with an agent using the 6-digit console code. Returns a Computer.
     static func pair(host: String, port: Int, code: String, clientName: String) async throws -> Computer {
-        guard let url = URL(string: "http://\(host):\(port)/pair") else { throw ClientError.badURL }
+        guard let url = url("/pair", host: host, port: port) else { throw ClientError.badURL }
         var req = URLRequest(url: url)
         req.httpMethod = "POST"; req.timeoutInterval = 12
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -81,7 +93,7 @@ struct AgentClient {
 
     /// Pair with a Bonjour-discovered agent without typing a one-time code.
     static func autoPair(host: String, port: Int, clientName: String) async throws -> Computer {
-        guard let url = URL(string: "http://\(host):\(port)/pair/auto") else { throw ClientError.badURL }
+        guard let url = url("/pair/auto", host: host, port: port) else { throw ClientError.badURL }
         var req = URLRequest(url: url)
         req.httpMethod = "POST"; req.timeoutInterval = 12
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -113,6 +125,17 @@ struct AgentClient {
     func fetchLogs(limit: Int = 50) async throws -> [ExecutionLog] {
         let data = try await request("/logs?limit=\(limit)")
         return try JSONDecoder().decode(LogsResponse.self, from: data).logs
+    }
+
+    struct ApprovalsResponse: Codable { var approvals: [ApprovalRequest] }
+    func fetchApprovals() async throws -> [ApprovalRequest] {
+        let data = try await request("/approvals")
+        return try JSONDecoder().decode(ApprovalsResponse.self, from: data).approvals
+    }
+
+    func registerPushToken(_ deviceToken: String) async throws {
+        _ = try await request("/push/register", method: "POST",
+                              body: ["deviceToken": deviceToken, "environment": "sandbox"])
     }
 
     func decideApproval(id: String, decision: String) async throws {

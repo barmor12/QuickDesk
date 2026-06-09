@@ -77,6 +77,20 @@ export function resetPairedClients() {
   return { ok: true, removed };
 }
 
+export function updateClientPushRegistration(clientId, registration) {
+  const identity = loadIdentity();
+  const client = identity.pairedClients.find((c) => c.id === clientId);
+  if (!client) return null;
+
+  client.push = {
+    deviceToken: registration.deviceToken,
+    environment: registration.environment || "sandbox",
+    updatedAt: new Date().toISOString(),
+  };
+  saveIdentity(identity);
+  return client;
+}
+
 /** Express middleware enforcing a valid bearer token from a paired client. */
 export function requireAuth(req, res, next) {
   const header = req.get("authorization") || "";
