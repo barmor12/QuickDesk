@@ -7,6 +7,7 @@ final class AgentSocket: NSObject {
         case approvalCreated(ApprovalRequest)
         case approvalResolved(ApprovalRequest)
         case executionFinished(ExecutionLog)
+        case tasksUpdated([AgentTask])
     }
 
     private var task: URLSessionWebSocketTask?
@@ -66,7 +67,12 @@ final class AgentSocket: NSObject {
         }
     }
 
-    private struct Envelope: Codable { var type: String; var approval: ApprovalRequest?; var log: ExecutionLog? }
+    private struct Envelope: Codable {
+        var type: String
+        var approval: ApprovalRequest?
+        var log: ExecutionLog?
+        var tasks: [AgentTask]?
+    }
 
     private func handle(_ text: String) {
         guard let data = text.data(using: .utf8),
@@ -75,6 +81,7 @@ final class AgentSocket: NSObject {
         case "approval.created": if let a = env.approval { onEvent?(.approvalCreated(a)) }
         case "approval.decided", "approval.expired": if let a = env.approval { onEvent?(.approvalResolved(a)) }
         case "execution.finished": if let l = env.log { onEvent?(.executionFinished(l)) }
+        case "tasks.updated": if let tasks = env.tasks { onEvent?(.tasksUpdated(tasks)) }
         default: break
         }
     }

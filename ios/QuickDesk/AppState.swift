@@ -123,6 +123,9 @@ final class AppState {
         case .executionFinished(let log):
             logs.insert(log, at: 0)
             session.sendStatus(log)
+        case .tasksUpdated(let updatedTasks):
+            tasks = updatedTasks
+            pushStateToWatch()
         }
     }
 
@@ -197,6 +200,19 @@ final class AppState {
             let log = try await AgentClient(computer: computer).execute(taskId: taskId, confirmed: confirmed)
             logs.insert(log, at: 0)
             return log
+        } catch {
+            lastError = error.localizedDescription
+            return nil
+        }
+    }
+
+    func installDeveloperPack() async -> DeveloperPackResponse? {
+        guard let computer = selectedComputer else { return nil }
+        do {
+            let response = try await AgentClient(computer: computer).installDeveloperPack()
+            tasks = response.tasks
+            pushStateToWatch()
+            return response
         } catch {
             lastError = error.localizedDescription
             return nil

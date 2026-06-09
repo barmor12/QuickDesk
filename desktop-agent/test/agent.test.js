@@ -12,6 +12,7 @@ const { executeTask } = await import("../src/executor.js");
 const { armPairing, completePairing } = await import("../src/auth.js");
 const { generatePairingCode } = await import("../src/config.js");
 const { startLog, finishLog, listLogs } = await import("../src/logger.js");
+const { developerPackTasks, mergeDeveloperPack } = await import("../src/developer-pack.js");
 
 test("executeTask runs ordered actions and succeeds", async () => {
   const res = await executeTask({
@@ -74,4 +75,20 @@ test("logs lifecycle: pending -> success", () => {
   const done = finishLog(log.id, { status: "success", output: "ok", error: "" });
   assert.equal(done.status, "success");
   assert.ok(listLogs().some((l) => l.id === log.id));
+});
+
+test("developer pack installs useful tasks without duplicates", () => {
+  const pack = developerPackTasks();
+  assert.ok(pack.some((task) => task.id === "open-codex"));
+  assert.ok(pack.some((task) => task.id === "open-claude-code"));
+  assert.ok(pack.some((task) => task.id === "run-agent-tests"));
+
+  const first = mergeDeveloperPack([{ id: "custom", name: "Custom", actions: [] }]);
+  assert.equal(first.added, pack.length);
+  assert.equal(first.tasks.filter((task) => task.id === "open-codex").length, 1);
+
+  const second = mergeDeveloperPack(first.tasks);
+  assert.equal(second.added, 0);
+  assert.equal(second.updated, pack.length);
+  assert.equal(second.tasks.filter((task) => task.id === "open-codex").length, 1);
 });

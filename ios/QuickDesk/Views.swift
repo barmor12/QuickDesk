@@ -470,13 +470,19 @@ struct ApprovalCard: View {
 struct AgentHubView: View {
     @Environment(AppState.self) private var state
     @State private var health: AgentClient.HealthResponse?
+    @State private var diagnostics: AgentDiagnostics?
     @State private var checking = false
+    @State private var installingPack = false
+    @State private var toast: String?
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    AgentHeroCard(health: health, checking: checking)
+                    AgentHeroCard(health: health, diagnostics: diagnostics, checking: checking)
+                    DeveloperToolkitCard(installing: installingPack) {
+                        installDeveloperPack()
+                    }
 
                     if !state.pendingApprovals.isEmpty {
                         SectionHeader(title: "Waiting for you", subtitle: "\(state.pendingApprovals.count) approval prompt\(state.pendingApprovals.count == 1 ? "" : "s")")
@@ -493,16 +499,27 @@ struct AgentHubView: View {
                         }
                     }
 
+                    SectionHeader(title: "Live diagnostics", subtitle: diagnosticsSubtitle)
+                    DiagnosticsGrid(diagnostics: diagnostics)
+
                     SectionHeader(title: "Control center", subtitle: "Useful checks before you run workflows")
                     VStack(spacing: 10) {
                         HubActionRow(icon: "arrow.clockwise", title: "Refresh tasks and approvals",
                                      subtitle: "Sync iPhone and watch with the agent") {
-                            Task { await state.refresh(); await checkHealth() }
+                            Task { await refreshAgent() }
+                        }
+                        HubActionRow(icon: "plus.square.on.square", title: "Install Developer Pack",
+                                     subtitle: "Add Codex, Claude Code, Xcode, tests, build, GitHub and Tailscale workflows") {
+                            installDeveloperPack()
                         }
                         HubInfoRow(icon: "applewatch", title: "Watch sync",
                                    subtitle: "Favorites are pushed first so the watch stays fast.")
                         HubInfoRow(icon: "network", title: "Network fallback",
-                                   subtitle: state.selectedComputer.map { "\($0.host):\($0.port)" } ?? "No computer selected")
+                                   subtitle: diagnostics?.network.tailnetUrls.first ?? state.selectedComputer.map { "\($0.host):\($0.port)" } ?? "No computer selected")
+                        if let repo = diagnostics?.paths.REPO_ROOT {
+                            HubInfoRow(icon: "folder", title: "Workspace",
+                                       subtitle: repo)
+                        }
                     }
 
                     if let error = state.lastError {
@@ -518,29 +535,56 @@ struct AgentHubView: View {
             }
             .background(AppTheme.background.ignoresSafeArea())
             .navigationTitle("Agent")
+            .overlay(alignment: .bottom) { ToastView(text: toast) }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { Task { await checkHealth() } } label: {
+                    Button { Task { await refreshAgent() } } label: {
                         Image(systemName: "stethoscope")
                     }
                 }
             }
-            .refreshable { await checkHealth(); await state.refresh() }
-            .task { await checkHealth() }
+            .refreshable { await refreshAgent() }
+            .task { await refreshAgent() }
         }
     }
 
-    private func checkHealth() async {
+    private var diagnosticsSubtitle: String {
+        guard let diagnostics else { return "Pull to refresh the agent snapshot" }
+        return "\(formatUptime(diagnostics.process.uptimeSeconds)) uptime · \(diagnostics.clients.connectedPhones) live phone connection\(diagnostics.clients.connectedPhones == 1 ? "" : "s")"
+    }
+
+    private func refreshAgent() async {
         guard let computer = state.selectedComputer else { return }
         checking = true
         defer { checking = false }
-        health = try? await AgentClient.health(host: computer.host, port: computer.port)
+        async let healthResult = try? AgentClient.health(host: computer.host, port: computer.port)
+        async let diagnosticsResult = try? AgentClient(computer: computer).fetchDiagnostics()
+        await state.refresh()
+        health = await healthResult
+        diagnostics = await diagnosticsResult
+    }
+
+    private func installDeveloperPack() {
+        installingPack = true
+        Task {
+            let response = await state.installDeveloperPack()
+            installingPack = false
+            if let response {
+                toast = "Added \(response.added), updated \(response.updated)"
+                await refreshAgent()
+            } else {
+                toast = "Developer Pack failed"
+            }
+            try? await Task.sleep(for: .seconds(2))
+            toast = nil
+        }
     }
 }
 
 struct AgentHeroCard: View {
     @Environment(AppState.self) private var state
     let health: AgentClient.HealthResponse?
+    let diagnostics: AgentDiagnostics?
     let checking: Bool
 
     var body: some View {
@@ -550,7 +594,7 @@ struct AgentHeroCard: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(health?.agent.name ?? state.selectedComputer?.name ?? "No agent")
                         .font(.title3.bold())
-                    Text(state.isConnected ? "Connected" : checking ? "Checking..." : "Not connected")
+                    Text(state.isConnected ? "Connected over \(connectionLabel)" : checking ? "Checking..." : "Not connected")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -559,9 +603,9 @@ struct AgentHeroCard: View {
             }
 
             HStack(spacing: 10) {
-                MetricPill(title: "Tasks", value: "\(state.tasks.count)", icon: "bolt.fill", color: AppTheme.teal)
+                MetricPill(title: "Tasks", value: "\(diagnostics?.tasks.count ?? state.tasks.count)", icon: "bolt.fill", color: AppTheme.teal)
                 MetricPill(title: "Queue", value: "\(state.pendingApprovals.count)", icon: "checkmark.shield.fill", color: .indigo)
-                MetricPill(title: "Auto pair", value: health?.autoPairing == true ? "On" : "-", icon: "link", color: .orange)
+                MetricPill(title: "Push", value: diagnostics?.push.configured == true ? "On" : "Local", icon: "bell.badge.fill", color: .orange)
             }
         }
         .padding(18)
@@ -571,6 +615,131 @@ struct AgentHeroCard: View {
                 .stroke(AppTheme.border)
         }
     }
+
+    private var connectionLabel: String {
+        if diagnostics?.network.tailnetUrls.isEmpty == false { return "Tailscale" }
+        return "local network"
+    }
+}
+
+struct DeveloperToolkitCard: View {
+    let installing: Bool
+    let install: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top, spacing: 12) {
+                SymbolBubble(icon: "sparkles", color: .indigo)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Developer Toolkit")
+                        .font(.title3.bold())
+                    Text("Install one-tap workflows for Codex, Claude Code, Xcode, tests, builds, GitHub, Tailscale and dev-port cleanup.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 118), spacing: 8)], spacing: 8) {
+                MiniFeaturePill(icon: "terminal.fill", title: "Codex")
+                MiniFeaturePill(icon: "curlybraces.square.fill", title: "Claude")
+                MiniFeaturePill(icon: "hammer.circle.fill", title: "Xcode")
+                MiniFeaturePill(icon: "checkmark.seal.fill", title: "Tests")
+            }
+            Button(action: install) {
+                Label(installing ? "Installing..." : "Install Developer Pack", systemImage: "square.and.arrow.down.fill")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.indigo)
+            .disabled(installing)
+        }
+        .padding(18)
+        .background(AppTheme.panel, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(AppTheme.border)
+        }
+    }
+}
+
+struct MiniFeaturePill: View {
+    let icon: String
+    let title: String
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.caption.weight(.bold))
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .lineLimit(1)
+        }
+        .foregroundStyle(.primary)
+        .frame(maxWidth: .infinity, minHeight: 34)
+        .background(Color(.tertiarySystemGroupedBackground), in: Capsule())
+    }
+}
+
+struct DiagnosticsGrid: View {
+    let diagnostics: AgentDiagnostics?
+
+    var body: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 145), spacing: 10)], spacing: 10) {
+            DiagnosticTile(title: "Uptime", value: diagnostics.map { formatUptime($0.process.uptimeSeconds) } ?? "-",
+                           icon: "clock.fill", color: AppTheme.teal)
+            DiagnosticTile(title: "Memory", value: diagnostics.map { "\($0.process.memoryMb.rss) MB" } ?? "-",
+                           icon: "memorychip.fill", color: .purple)
+            DiagnosticTile(title: "Phones", value: diagnostics.map { "\($0.clients.connectedPhones)/\($0.clients.paired)" } ?? "-",
+                           icon: "iphone", color: .indigo)
+            DiagnosticTile(title: "Tailscale", value: diagnostics?.network.tailnetUrls.isEmpty == false ? "Ready" : "-",
+                           icon: "network", color: .orange)
+            DiagnosticTile(title: "Sensitive", value: diagnostics.map { "\($0.tasks.sensitive)" } ?? "-",
+                           icon: "exclamationmark.shield.fill", color: .red)
+            DiagnosticTile(title: "Node", value: diagnostics?.process.node ?? "-",
+                           icon: "server.rack", color: .green)
+        }
+    }
+}
+
+struct DiagnosticTile: View {
+    let title: String
+    let value: String
+    let icon: String
+    let color: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(color)
+                Spacer()
+            }
+            Text(value)
+                .font(.headline.weight(.bold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.78)
+            Text(title)
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(AppTheme.panel, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(AppTheme.border)
+        }
+    }
+}
+
+private func formatUptime(_ seconds: Int) -> String {
+    if seconds < 60 { return "\(seconds)s" }
+    let minutes = seconds / 60
+    if minutes < 60 { return "\(minutes)m" }
+    let hours = minutes / 60
+    if hours < 48 { return "\(hours)h" }
+    return "\(hours / 24)d"
 }
 
 struct HubActionRow: View {

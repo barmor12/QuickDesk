@@ -75,7 +75,12 @@ State lives in `~/.quickdesk/`:
 
 Each task has ordered actions. Action types: `openApp`, `openUrl`,
 `runCommand`, `runScript`, `systemAction` (`lock`, `sleep`, `shutdown`,
-`restart`). Edit `~/.quickdesk/tasks.json`, or push from the iPhone app.
+`restart`). Edit `~/.quickdesk/tasks.json`, push from the iPhone app, or use
+the iPhone Agent tab to install the built-in Developer Pack.
+
+The Developer Pack adds workflows for Codex, Claude Code, Xcode, agent tests,
+iOS/watchOS builds, GitHub, Tailscale status, the local agent panel, and dev-port
+cleanup.
 
 ### Dangerous actions
 `shutdown` / `restart` are blocked unless you set `"allowDangerousActions": true`
@@ -92,6 +97,8 @@ confirmation from the phone/watch before running.
 | PUT    | `/tasks`                  | yes  | Replace task list             |
 | POST   | `/tasks/execute`          | yes  | Run a task (`428` if confirm) |
 | GET    | `/logs`                   | yes  | Execution history             |
+| GET    | `/agent/diagnostics`      | yes  | Agent health snapshot         |
+| POST   | `/tasks/developer-pack`   | yes  | Install built-in dev workflows|
 | POST   | `/approvals`              | yes  | Create approval (hook)        |
 | GET    | `/approvals`              | yes  | List pending approvals        |
 | GET    | `/approvals/:id?wait=1`   | yes  | Long-poll for a decision      |

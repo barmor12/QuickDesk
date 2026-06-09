@@ -87,6 +87,77 @@ struct ExecutionLog: Codable, Identifiable, Hashable {
     var error: String?
 }
 
+// MARK: - Agent Diagnostics
+
+struct AgentDiagnostics: Codable, Hashable {
+    struct Agent: Codable, Hashable { var id: String; var name: String; var os: String }
+    struct ProcessInfo: Codable, Hashable {
+        struct Memory: Codable, Hashable {
+            var rss: Int
+            var heapUsed: Int
+            var systemFree: Int
+            var systemTotal: Int
+        }
+        var pid: Int
+        var uptimeSeconds: Int
+        var node: String
+        var platform: String
+        var arch: String
+        var memoryMb: Memory
+        var cpuCount: Int
+    }
+    struct PathInfo: Codable, Hashable {
+        var AGENT_ROOT: String
+        var REPO_ROOT: String
+    }
+    struct NetworkInfo: Codable, Hashable {
+        var port: Int
+        var host: String
+        var addresses: [String]
+        var lanUrls: [String]
+        var tailnetUrls: [String]
+    }
+    struct TaskInfo: Codable, Hashable {
+        var count: Int
+        var favorites: Int
+        var sensitive: Int
+    }
+    struct ApprovalInfo: Codable, Hashable {
+        var pending: Int
+        var sources: [String: Int]
+    }
+    struct ClientInfo: Codable, Hashable {
+        var paired: Int
+        var connectedPhones: Int
+        var pushReady: Int
+    }
+    struct PushInfo: Codable, Hashable {
+        var configured: Bool
+        var environment: String?
+        var topic: String?
+    }
+
+    var ok: Bool
+    var agent: Agent
+    var process: ProcessInfo
+    var paths: PathInfo
+    var network: NetworkInfo
+    var tasks: TaskInfo
+    var approvals: ApprovalInfo
+    var clients: ClientInfo
+    var push: PushInfo
+    var autoPairing: Bool
+    var pairingArmed: Bool
+    var version: String
+}
+
+struct DeveloperPackResponse: Codable, Hashable {
+    var ok: Bool
+    var tasks: [AgentTask]
+    var added: Int
+    var updated: Int
+}
+
 // MARK: - Approvals (Claude/Codex permission prompts forwarded to the watch)
 
 struct ApprovalRequest: Codable, Identifiable, Hashable {

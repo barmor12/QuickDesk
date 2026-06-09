@@ -4,7 +4,7 @@ import cors from "cors";
 import bonjourService from "bonjour-service";
 import { createServer } from "node:http";
 import { WebSocketServer } from "ws";
-import { networkInterfaces } from "node:os";
+import { cpus, freemem, networkInterfaces, totalmem } from "node:os";
 import { randomUUID } from "node:crypto";
 
 import { loadIdentity, loadTasks, saveTasks, generatePairingCode } from "./config.js";
@@ -28,6 +28,7 @@ import {
   publicView,
 } from "./approvals.js";
 import { apnsStatus, sendApprovalPush } from "./apns.js";
+import { mergeDeveloperPack, paths } from "./developer-pack.js";
 
 const { Bonjour } = bonjourService;
 
@@ -82,6 +83,65 @@ function localStatus() {
     push: apnsStatus(),
     connectedPhones: wsClients.size,
     pid: process.pid,
+    version: "1.0.0",
+  };
+}
+
+function bytesToMb(value) {
+  return Math.round(value / 1024 / 1024);
+}
+
+function agentDiagnostics() {
+  const current = loadIdentity();
+  const tasks = loadTasks();
+  const pending = listPending();
+  const addresses = localAddresses();
+  return {
+    ok: true,
+    agent: { id: current.id, name: current.name, os: current.os },
+    process: {
+      pid: process.pid,
+      uptimeSeconds: Math.round(process.uptime()),
+      node: process.version,
+      platform: process.platform,
+      arch: process.arch,
+      memoryMb: {
+        rss: bytesToMb(process.memoryUsage().rss),
+        heapUsed: bytesToMb(process.memoryUsage().heapUsed),
+        systemFree: bytesToMb(freemem()),
+        systemTotal: bytesToMb(totalmem()),
+      },
+      cpuCount: cpus().length,
+    },
+    paths,
+    network: {
+      port: PORT,
+      host: HOST,
+      addresses,
+      lanUrls: addresses.map((address) => `http://${address}:${PORT}`),
+      tailnetUrls: addresses.filter(isTailscaleAddress).map((address) => `http://${address}:${PORT}`),
+    },
+    tasks: {
+      count: tasks.length,
+      favorites: tasks.filter((task) => task.category === "Development").length,
+      sensitive: tasks.filter((task) => task.requiresConfirmation).length,
+    },
+    approvals: {
+      pending: pending.length,
+      sources: pending.reduce((acc, approval) => {
+        const source = approval.source || "unknown";
+        acc[source] = (acc[source] || 0) + 1;
+        return acc;
+      }, {}),
+    },
+    clients: {
+      paired: current.pairedClients.length,
+      connectedPhones: wsClients.size,
+      pushReady: current.pairedClients.filter((client) => client.push?.deviceToken).length,
+    },
+    push: apnsStatus(),
+    autoPairing: AUTO_PAIRING,
+    pairingArmed: Boolean(isPairingArmed()),
     version: "1.0.0",
   };
 }
@@ -372,6 +432,17 @@ app.post("/tasks/execute", requireAuth, async (req, res) => {
 app.get("/logs", requireAuth, (req, res) => {
   const limit = Math.min(Number(req.query.limit) || 50, 200);
   res.json({ logs: listLogs(limit) });
+});
+
+app.get("/agent/diagnostics", requireAuth, (_req, res) => {
+  res.json({ diagnostics: agentDiagnostics() });
+});
+
+app.post("/tasks/developer-pack", requireAuth, (_req, res) => {
+  const result = mergeDeveloperPack(loadTasks());
+  saveTasks(result.tasks);
+  broadcast({ type: "tasks.updated", tasks: result.tasks });
+  res.json({ ok: true, ...result });
 });
 
 app.post("/push/register", requireAuth, (req, res) => {

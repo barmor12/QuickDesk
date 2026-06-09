@@ -11,6 +11,8 @@ QuickDesk is a local-first iPhone and Apple Watch command center for your Mac. I
 - Approve or deny permission requests from the watch.
 - Manage agent status from a local Mac control panel.
 - Use a polished SwiftUI interface with favorites, task search, filters, and quick launch.
+- Install a Developer Pack with one-tap workflows for Codex, Claude Code, Xcode, tests, iOS/watchOS builds, GitHub, Tailscale, and dev-port cleanup.
+- View live agent diagnostics from iPhone: uptime, memory, Tailscale URLs, push status, paired devices, pending approvals, and connected phones.
 
 ## Project Structure
 
@@ -47,6 +49,8 @@ http://127.0.0.1:7420/local
 ```
 
 From there you can view agent status, generate a pairing code, reset pairings, restart the agent, and see fallback LAN addresses.
+
+The iPhone `Agent` tab also shows authenticated diagnostics and can install the built-in Developer Pack into `~/.quickdesk/tasks.json`.
 
 ## Run as a macOS LaunchAgent
 
@@ -154,6 +158,23 @@ desktop-agent/tasks.example.json
 ```
 
 Each task can open apps, open URLs, run commands, run scripts, or perform system actions.
+
+### Developer Pack
+
+Open QuickDesk on iPhone, go to `Agent`, then tap `Install Developer Pack`.
+
+This adds or updates:
+
+- Open Codex
+- Open Claude Code
+- Open QuickDesk in Xcode
+- Run Agent Tests
+- Build iPhone + Watch
+- Open GitHub Repo
+- Open Agent Panel
+- Tailscale Status
+- Free Dev Ports
+- Developer Launchpad
 
 Example:
 

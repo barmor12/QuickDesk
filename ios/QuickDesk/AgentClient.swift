@@ -122,6 +122,17 @@ struct AgentClient {
         return try JSONDecoder().decode(TasksResponse.self, from: data).tasks
     }
 
+    struct DiagnosticsResponse: Codable { var diagnostics: AgentDiagnostics }
+    func fetchDiagnostics() async throws -> AgentDiagnostics {
+        let data = try await request("/agent/diagnostics")
+        return try JSONDecoder().decode(DiagnosticsResponse.self, from: data).diagnostics
+    }
+
+    func installDeveloperPack() async throws -> DeveloperPackResponse {
+        let data = try await request("/tasks/developer-pack", method: "POST")
+        return try JSONDecoder().decode(DeveloperPackResponse.self, from: data)
+    }
+
     struct ExecuteResponse: Codable { var ok: Bool; var log: ExecutionLog }
     func execute(taskId: String, confirmed: Bool) async throws -> ExecutionLog {
         let data = try await request("/tasks/execute", method: "POST",
