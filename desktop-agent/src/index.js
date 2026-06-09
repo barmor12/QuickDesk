@@ -62,12 +62,14 @@ function generateAndArmPairingCode() {
 
 function localStatus() {
   const current = loadIdentity();
+  const addresses = localAddresses();
   return {
     ok: true,
     agent: { id: current.id, name: current.name, os: current.os },
     port: PORT,
     host: HOST,
-    lanUrls: localAddresses().map((address) => `http://${address}:${PORT}`),
+    lanUrls: addresses.map((address) => `http://${address}:${PORT}`),
+    tailnetUrls: addresses.filter(isTailscaleAddress).map((address) => `http://${address}:${PORT}`),
     localUrl: `http://127.0.0.1:${PORT}/local`,
     pairingArmed: Boolean(isPairingArmed()),
     autoPairing: AUTO_PAIRING,
@@ -97,11 +99,14 @@ function broadcast(event) {
 
 // Liveness + identity so a phone can discover/verify the agent before pairing.
 app.get("/health", (_req, res) => {
+  const tailnetAddress = localAddresses().find(isTailscaleAddress);
   res.json({
     ok: true,
     agent: { id: identity.id, name: identity.name, os: identity.os },
     pairingArmed: isPairingArmed(),
     autoPairing: AUTO_PAIRING,
+    tailnetHost: tailnetAddress || null,
+    tailnetPort: tailnetAddress ? PORT : null,
     version: "1.0.0",
   });
 });
@@ -455,6 +460,12 @@ function localAddresses() {
   return out;
 }
 
+function isTailscaleAddress(address) {
+  const parts = String(address).split(".").map(Number);
+  if (parts.length !== 4 || parts.some((part) => Number.isNaN(part))) return false;
+  return parts[0] === 100 && parts[1] >= 64 && parts[1] <= 127;
+}
+
 function sendPushesForApproval(approval) {
   const current = loadIdentity();
   const pushClients = current.pairedClients.filter((client) => client.push?.deviceToken);
@@ -490,11 +501,20 @@ server.listen(PORT, HOST, () => {
   // no IP typing, and it keeps working when the network/IP changes.
   try {
     bonjour = new Bonjour();
+    const tailnetAddress = localAddresses().find(isTailscaleAddress);
     bonjour.publish({
       name: `QuickDesk ${identity.name}`.slice(0, 63),
       type: "quickdesk", // -> _quickdesk._tcp
       port: PORT,
-      txt: { id: identity.id, name: identity.name, os: identity.os, v: "1.0.0", autoPairing: AUTO_PAIRING ? "1" : "0" },
+      txt: {
+        id: identity.id,
+        name: identity.name,
+        os: identity.os,
+        v: "1.0.0",
+        autoPairing: AUTO_PAIRING ? "1" : "0",
+        tailnetHost: tailnetAddress || "",
+        tailnetPort: tailnetAddress ? String(PORT) : "",
+      },
     });
     console.log("  📡 Advertising on the local network (Bonjour: _quickdesk._tcp)\n");
   } catch (err) {

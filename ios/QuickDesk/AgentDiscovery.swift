@@ -17,6 +17,12 @@ final class AgentDiscovery {
     private init() {}
 
     func discover(timeout: TimeInterval = 2.5) async -> [AgentEndpoint] {
+        async let bonjourEndpoints = discoverBonjour(timeout: timeout)
+        async let savedEndpoints = discoverSavedComputers(timeout: timeout)
+        return await merged(bonjourEndpoints + savedEndpoints)
+    }
+
+    private func discoverBonjour(timeout: TimeInterval) async -> [AgentEndpoint] {
         await withCheckedContinuation { continuation in
             DispatchQueue.main.async {
                 let run = DiscoveryRun(timeout: timeout) { [weak self] run, endpoints in
@@ -30,8 +36,61 @@ final class AgentDiscovery {
     }
 
     func endpoint(for computer: Computer, timeout: TimeInterval = 1.5) async -> AgentEndpoint? {
-        let endpoints = await discover(timeout: timeout)
+        if let endpoint = await savedEndpoint(for: computer) {
+            return endpoint
+        }
+        let endpoints = await discoverBonjour(timeout: timeout)
         return endpoints.first { $0.id == computer.id }
+    }
+
+    private func discoverSavedComputers(timeout: TimeInterval) async -> [AgentEndpoint] {
+        await withTaskGroup(of: AgentEndpoint?.self) { group in
+            for computer in Persistence.loadComputers() {
+                group.addTask {
+                    await self.savedEndpoint(for: computer, timeout: timeout)
+                }
+            }
+
+            var endpoints: [AgentEndpoint] = []
+            for await endpoint in group {
+                if let endpoint { endpoints.append(endpoint) }
+            }
+            return endpoints
+        }
+    }
+
+    private func savedEndpoint(for computer: Computer, timeout: TimeInterval = 1.5) async -> AgentEndpoint? {
+        guard let url = Computer.endpointURL(host: computer.host, port: computer.port),
+              let host = url.host else { return nil }
+        do {
+            let health = try await AgentClient.health(host: computer.host, port: computer.port, timeout: timeout)
+            return AgentEndpoint(
+                id: health.agent.id,
+                name: health.agent.name,
+                os: health.agent.os,
+                host: health.tailnetHost ?? host,
+                port: health.tailnetPort ?? url.port ?? computer.port,
+                autoPairing: health.autoPairing != false
+            )
+        } catch {
+            return nil
+        }
+    }
+
+    private func merged(_ endpoints: [AgentEndpoint]) -> [AgentEndpoint] {
+        var byID: [String: AgentEndpoint] = [:]
+        for endpoint in endpoints {
+            if let existing = byID[endpoint.id], isTailscaleHost(existing.host) {
+                continue
+            }
+            byID[endpoint.id] = endpoint
+        }
+        return Array(byID.values).sorted { $0.name < $1.name }
+    }
+
+    private func isTailscaleHost(_ host: String) -> Bool {
+        let parts = host.split(separator: ".").compactMap { Int($0) }
+        return parts.count == 4 && parts[0] == 100 && parts[1] >= 64 && parts[1] <= 127
     }
 }
 
@@ -85,12 +144,15 @@ private final class DiscoveryRun: NSObject, NetServiceBrowserDelegate, NetServic
         let host = (service.hostName ?? "").trimmingCharacters(in: CharacterSet(charactersIn: "."))
         guard !host.isEmpty, service.port > 0 else { return nil }
 
+        let tailnetHost = stringValue(txt["tailnetHost"])
+        let tailnetPort = Int(stringValue(txt["tailnetPort"]) ?? "")
+
         return AgentEndpoint(
             id: id,
             name: stringValue(txt["name"]) ?? service.name,
             os: stringValue(txt["os"]) ?? "Unknown",
-            host: host,
-            port: service.port,
+            host: tailnetHost?.isEmpty == false ? tailnetHost! : host,
+            port: tailnetPort ?? service.port,
             autoPairing: stringValue(txt["autoPairing"]) != "0"
         )
     }

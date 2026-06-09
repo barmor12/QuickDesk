@@ -54,13 +54,18 @@ struct AgentClient {
 
     struct HealthResponse: Codable {
         struct Agent: Codable { var id: String; var name: String; var os: String }
-        var ok: Bool; var agent: Agent; var pairingArmed: Bool?; var autoPairing: Bool?
+        var ok: Bool
+        var agent: Agent
+        var pairingArmed: Bool?
+        var autoPairing: Bool?
+        var tailnetHost: String?
+        var tailnetPort: Int?
     }
 
     /// Static health check used before pairing (no token yet).
-    static func health(host: String, port: Int) async throws -> HealthResponse {
+    static func health(host: String, port: Int, timeout: TimeInterval = 8) async throws -> HealthResponse {
         guard let url = url("/health", host: host, port: port) else { throw ClientError.badURL }
-        var req = URLRequest(url: url); req.timeoutInterval = 8
+        var req = URLRequest(url: url); req.timeoutInterval = timeout
         let (data, resp) = try await URLSession.shared.data(for: req)
         guard let http = resp as? HTTPURLResponse, http.statusCode == 200 else { throw ClientError.decoding }
         return try JSONDecoder().decode(HealthResponse.self, from: data)
@@ -84,7 +89,10 @@ struct AgentClient {
             throw ClientError.http(http.statusCode, String(data: data, encoding: .utf8) ?? "")
         }
         let pr = try JSONDecoder().decode(PairResponse.self, from: data)
-        return Computer(id: pr.agent.id, name: pr.agent.name, host: host, port: port,
+        let health = try? await self.health(host: host, port: port)
+        return Computer(id: pr.agent.id, name: pr.agent.name,
+                        host: health?.tailnetHost ?? host,
+                        port: health?.tailnetPort ?? port,
                         os: pr.agent.os, token: pr.token)
     }
 
@@ -101,7 +109,10 @@ struct AgentClient {
             throw ClientError.http(http.statusCode, String(data: data, encoding: .utf8) ?? "")
         }
         let pr = try JSONDecoder().decode(PairResponse.self, from: data)
-        return Computer(id: pr.agent.id, name: pr.agent.name, host: host, port: port,
+        let health = try? await self.health(host: host, port: port)
+        return Computer(id: pr.agent.id, name: pr.agent.name,
+                        host: health?.tailnetHost ?? host,
+                        port: health?.tailnetPort ?? port,
                         os: pr.agent.os, token: pr.token)
     }
 
