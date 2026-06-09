@@ -34,7 +34,7 @@
     <string>QuickDesk connects to the agent running on your computer over your local network to run tasks.</string>
     <key>NSBonjourServices</key>
     <array>
-        <string>_quickdesk._tcp</string>
+        <string>_quickdesk._tcp.</string>
     </array>
 	<key>NSAppTransportSecurity</key>
 	<dict>

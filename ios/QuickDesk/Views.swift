@@ -677,6 +677,7 @@ struct AddComputerView: View {
     @State private var scanning = false
     @State private var nearby: [AgentEndpoint] = []
     @State private var selectedNearby: AgentEndpoint?
+    @State private var manualAutoPairing = false
 
     var body: some View {
         NavigationStack {
@@ -692,6 +693,7 @@ struct AddComputerView: View {
                                 host = agent.host
                                 port = String(agent.port)
                                 code = ""
+                                manualAutoPairing = agent.autoPairing
                                 status = agent.autoPairing ? "Selected \(agent.name). No code needed." : "Selected \(agent.name)"
                             } label: {
                                 VStack(alignment: .leading) {
@@ -709,10 +711,18 @@ struct AddComputerView: View {
                 Section("Agent address") {
                     TextField("IP, hostname, or https:// URL", text: $host)
                         .textInputAutocapitalization(.never).autocorrectionDisabled()
+                        .onChange(of: host) { _, _ in
+                            selectedNearby = nil
+                            manualAutoPairing = false
+                        }
                     TextField("Port", text: $port).keyboardType(.numberPad)
+                        .onChange(of: port) { _, _ in
+                            selectedNearby = nil
+                            manualAutoPairing = false
+                        }
                 }
-                Section(selectedNearby?.autoPairing == true ? "Pairing code (optional)" : "Pairing code") {
-                    TextField(selectedNearby?.autoPairing == true ? "Leave empty for automatic pairing" : "6-digit code from agent console", text: $code)
+                Section(manualAutoPairing ? "Pairing code (optional)" : "Pairing code") {
+                    TextField(manualAutoPairing ? "Leave empty for automatic pairing" : "6-digit code from agent console", text: $code)
                         .keyboardType(.numberPad)
                 }
                 if let status { Text(status).foregroundStyle(.secondary) }
@@ -732,8 +742,42 @@ struct AddComputerView: View {
     private func scan() {
         scanning = true
         Task {
-            nearby = await AgentDiscovery.shared.discover()
+            var discovered = await AgentDiscovery.shared.discover()
+            if let manual = await manualEndpoint() {
+                discovered.removeAll { $0.id == manual.id }
+                discovered.append(manual)
+                selectedNearby = manual
+                manualAutoPairing = manual.autoPairing
+                host = manual.host
+                port = String(manual.port)
+                code = ""
+                status = manual.autoPairing ? "Found \(manual.name) over Tailscale. No code needed." : "Found \(manual.name)"
+            } else if discovered.isEmpty {
+                status = "No agents found. On Wi-Fi, allow QuickDesk in Settings > Privacy & Security > Local Network. On 5G, enter the Tailscale address and scan again."
+            }
+            nearby = discovered.sorted { $0.name < $1.name }
             scanning = false
+        }
+    }
+
+    private func manualEndpoint() async -> AgentEndpoint? {
+        let trimmedHost = host.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedHost.isEmpty else { return nil }
+        let p = Int(port) ?? 7420
+        do {
+            let health = try await AgentClient.health(host: trimmedHost, port: p, timeout: 3)
+            let url = Computer.endpointURL(host: trimmedHost, port: p)
+            return AgentEndpoint(
+                id: health.agent.id,
+                name: health.agent.name,
+                os: health.agent.os,
+                host: health.tailnetHost ?? url?.host ?? trimmedHost,
+                port: health.tailnetPort ?? url?.port ?? p,
+                autoPairing: health.autoPairing != false
+            )
+        } catch {
+            status = error.localizedDescription
+            return nil
         }
     }
 
@@ -745,7 +789,7 @@ struct AddComputerView: View {
                 let p = Int(port) ?? 7420
                 let health = try await AgentClient.health(host: host, port: p)
                 let computer: Computer
-                if code.isEmpty, selectedNearby?.autoPairing == true || health.autoPairing == true {
+                if code.isEmpty, manualAutoPairing || selectedNearby?.autoPairing == true || health.autoPairing == true {
                     computer = try await AgentClient.autoPair(host: host, port: p,
                                                               clientName: UIDevice.current.name)
                 } else {
