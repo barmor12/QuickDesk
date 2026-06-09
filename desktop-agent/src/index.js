@@ -128,6 +128,7 @@ app.post("/pair", (req, res) => {
 // directly after the user taps a nearby computer.
 app.post("/pair/auto", (req, res) => {
   const { clientName } = req.body || {};
+  console.log(`➡️  Auto-pair request from ${req.ip || req.socket?.remoteAddress || "unknown"}: ${clientName || "iPhone"}`);
   const result = completeAutoPairing({ clientName });
   if (!result.ok) {
     return res.status(403).json({ error: result.error });

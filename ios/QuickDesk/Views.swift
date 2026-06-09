@@ -790,12 +790,15 @@ struct AddComputerView: View {
                 let health = try await AgentClient.health(host: host, port: p)
                 let computer: Computer
                 if code.isEmpty, manualAutoPairing || selectedNearby?.autoPairing == true || health.autoPairing == true {
+                    status = "Pairing automatically with \(health.agent.name)…"
                     computer = try await AgentClient.autoPair(host: host, port: p,
                                                               clientName: UIDevice.current.name)
                 } else {
+                    status = "Pairing with code…"
                     computer = try await AgentClient.pair(host: host, port: p, code: code,
                                                           clientName: UIDevice.current.name)
                 }
+                status = "Paired. Opening QuickDesk…"
                 state.addComputer(computer)
                 dismiss()
             } catch {
