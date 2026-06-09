@@ -1,167 +1,231 @@
-# QuickDesk
+<p align="center">
+  <img src="ios/DesignAssets/quickdesk-app-icon-source.png" width="96" alt="QuickDesk app icon">
+</p>
 
-QuickDesk is a local-first iPhone and Apple Watch command center for your Mac. It pairs with a small desktop agent, lets you run useful workflows from your phone or watch, and forwards Claude Code and Codex approval prompts so you can allow or deny them without staying glued to the terminal.
+<h1 align="center">QuickDesk</h1>
 
-## What It Does
+<p align="center">
+  <strong>A local-first iPhone and Apple Watch command center for your Mac.</strong>
+</p>
 
-- Run desktop workflows from iPhone and Apple Watch.
-- Auto-discover the Mac agent over Bonjour/mDNS.
-- Pair automatically on your local network, with a manual code fallback.
-- Receive Claude Code and Codex approval prompts on iPhone and Apple Watch.
-- Approve or deny permission requests from the watch.
-- Manage agent status from a local Mac control panel.
-- Use a polished SwiftUI interface with favorites, task search, filters, and quick launch.
-- Install a Developer Pack with one-tap workflows for Codex, Claude Code, Xcode, tests, iOS/watchOS builds, GitHub, Tailscale, and dev-port cleanup.
-- View live agent diagnostics from iPhone: uptime, memory, Tailscale URLs, push status, paired devices, pending approvals, and connected phones.
+<p align="center">
+  Run workflows, monitor your desktop agent, and approve Claude Code or Codex prompts from your phone or wrist.
+</p>
 
-## Project Structure
+<p align="center">
+  <img alt="Platform" src="https://img.shields.io/badge/platform-iOS%20%7C%20watchOS%20%7C%20macOS-111827?style=for-the-badge">
+  <img alt="SwiftUI" src="https://img.shields.io/badge/UI-SwiftUI-2563EB?style=for-the-badge">
+  <img alt="Node" src="https://img.shields.io/badge/agent-Node.js%2018%2B-16A34A?style=for-the-badge">
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-64748B?style=for-the-badge">
+</p>
+
+<p align="center">
+  <img src="docs/quickdesk-hero.svg" alt="QuickDesk overview">
+</p>
+
+## Why QuickDesk
+
+QuickDesk gives your Mac a tiny local agent and turns your iPhone and Apple Watch into a fast developer remote. It is built for the moments where you are running agents, builds, tests, or AI coding tools and do not want to stay glued to the terminal just to approve one prompt.
+
+| Use Case | What You Get |
+|---|---|
+| Claude Code and Codex approvals | Permission requests forwarded to iPhone and Apple Watch |
+| Developer workflows | One-tap actions for Codex, Claude Code, Xcode, tests, builds, GitHub, Tailscale, and port cleanup |
+| Apple Watch control | Approve or deny requests from the watch, including Double Tap / hand gesture support |
+| Local network pairing | Bonjour discovery, automatic local pairing, and manual fallback |
+| Remote access | Tailscale-friendly addresses and HTTPS tunnel support |
+| Agent diagnostics | Uptime, memory, connected clients, push status, paired devices, and pending approvals |
+
+<p align="center">
+  <img src="docs/quickdesk-flow.svg" alt="QuickDesk architecture flow">
+</p>
+
+## Features
+
+- iPhone SwiftUI app for pairing computers, launching tasks, managing diagnostics, and viewing approval prompts.
+- Apple Watch SwiftUI app for quick workflows, approval cards, status, haptics, and Double Tap approval.
+- Node.js desktop agent running on macOS as a per-user `launchd` service.
+- Claude Code and Codex hook installers with safe backups.
+- Local web control panel at `http://127.0.0.1:7420/local`.
+- Developer Pack with useful default tasks.
+- Optional Apple Push Notifications for true push delivery when the iPhone app is closed.
+- Tailscale support for using QuickDesk away from your home Wi-Fi.
+
+## Project Map
 
 ```text
-desktop-agent/          Node.js agent that runs on your Mac
-desktop-agent/hooks/    Claude Code and Codex approval hooks
-ios/QuickDesk/          iPhone SwiftUI app
-ios/QuickDeskWatch/     Apple Watch SwiftUI app
-ios/Shared/             Models shared by iPhone and watchOS
+QuickDesk/
+├─ desktop-agent/              Node.js agent, hooks, tasks, API, tests
+│  ├─ hooks/                   Claude Code and Codex approval hooks
+│  ├─ scripts/                 Hook installers and launchd runner
+│  └─ src/                     Agent server, auth, executor, APNs, diagnostics
+├─ ios/
+│  ├─ QuickDesk/               iPhone SwiftUI app
+│  ├─ QuickDeskWatch/          Apple Watch SwiftUI app
+│  └─ Shared/                  Shared models
+├─ scripts/                    One-command setup, build, status, test approval
+└─ docs/                       README visuals
 ```
 
 ## Requirements
 
-- macOS with Node.js 18 or newer
-- Xcode with iOS and watchOS SDKs
-- iPhone paired with an Apple Watch
-- Claude Code and/or Codex if you want approval forwarding
+| Requirement | Notes |
+|---|---|
+| macOS | Required for the desktop agent and iOS/watchOS build flow |
+| Node.js 18+ | Used by the QuickDesk desktop agent |
+| Xcode | Must include iOS and watchOS SDKs |
+| iPhone + Apple Watch | Needed for the full mobile/watch experience |
+| Apple Developer team | Required for real-device iOS/watchOS signing |
+| Paid Apple Developer Program | Required only for APNs push notifications |
 
-## Install the Desktop Agent
+## Quick Start
+
+Clone and install the Mac agent:
 
 ```bash
-cd desktop-agent
-npm install
-npm test
-npm start
+git clone https://github.com/barmor12/QuickDesk.git
+cd QuickDesk
+./scripts/setup-mac.sh
 ```
 
-The agent listens on port `7420` by default and advertises itself as `_quickdesk._tcp` on the local network.
+Configure iOS signing for your own Apple Developer team:
 
-Open the local control panel on the Mac:
+```bash
+./scripts/configure-ios-signing.sh YOUR_TEAM_ID com.yourname.quickdesk
+```
+
+Build the iPhone app with the embedded Apple Watch app:
+
+```bash
+./scripts/build-ios-device.sh
+open ios/QuickDesk.xcodeproj
+```
+
+In Xcode, select the `QuickDesk` scheme, choose your physical iPhone, and press Run. Xcode installs the embedded Apple Watch app automatically when your watch is paired with the iPhone.
+
+Pair the app:
+
+1. Start QuickDesk on the iPhone.
+2. Go to `Computers`.
+3. Tap `+`.
+4. Select your Mac from nearby agents.
+5. Tap `Pair`.
+
+Send a test approval:
+
+```bash
+./scripts/send-test-approval.sh
+```
+
+## Install Flow
+
+```mermaid
+flowchart LR
+  A["Clone repo"] --> B["./scripts/setup-mac.sh"]
+  B --> C["Agent runs at login"]
+  C --> D["Configure iOS signing"]
+  D --> E["Build and run from Xcode"]
+  E --> F["Pair iPhone"]
+  F --> G["Approve from Watch"]
+```
+
+## Setup Scripts
+
+| Command | Purpose |
+|---|---|
+| `./scripts/setup-mac.sh` | Installs dependencies, creates the launchd service, starts the agent, installs hooks, opens the panel |
+| `./scripts/quickdesk-agent.sh status` | Shows launchd status and `/health` |
+| `./scripts/quickdesk-agent.sh restart` | Restarts the background agent |
+| `./scripts/quickdesk-agent.sh logs` | Follows agent logs |
+| `./scripts/quickdesk-agent.sh panel` | Opens the local web panel |
+| `./scripts/quickdesk-agent.sh uninstall` | Removes the launchd service, keeping user data |
+| `./scripts/install-approval-hooks.sh` | Installs Claude Code and Codex hooks |
+| `./scripts/install-approval-hooks.sh --remove` | Removes QuickDesk hooks |
+| `./scripts/configure-ios-signing.sh TEAM_ID BUNDLE_ID` | Updates the Xcode project for another developer |
+| `./scripts/build-ios-device.sh` | Builds the iPhone + Watch app for a physical device |
+| `./scripts/send-test-approval.sh` | Creates a local test approval |
+
+## Desktop Agent
+
+The agent runs on port `7420` by default and advertises itself with Bonjour as `_quickdesk._tcp`.
+
+Local panel:
 
 ```text
 http://127.0.0.1:7420/local
 ```
 
-From there you can view agent status, generate a pairing code, reset pairings, restart the agent, and see fallback LAN addresses.
-
-The iPhone `Agent` tab also shows authenticated diagnostics and can install the built-in Developer Pack into `~/.quickdesk/tasks.json`.
-
-## Run as a macOS LaunchAgent
-
-Create `~/Library/LaunchAgents/com.quickdesk.agent.plist` pointing to:
+Configuration:
 
 ```text
-desktop-agent/src/index.js
+~/.quickdesk/agent.env
 ```
 
-Set `QUICKDESK_PORT=7420`, then load it:
+User data:
 
-```bash
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.quickdesk.agent.plist
-launchctl kickstart -k gui/$(id -u)/com.quickdesk.agent
+```text
+~/.quickdesk/identity.json
+~/.quickdesk/tasks.json
+~/.quickdesk/logs.json
+~/.quickdesk/agent.out.log
+~/.quickdesk/agent.err.log
 ```
 
-## Install the iPhone and Apple Watch Apps
+Disable automatic local pairing by editing:
 
-Open the Xcode project:
+```text
+~/.quickdesk/agent.env
+```
+
+Set:
 
 ```bash
+QUICKDESK_AUTO_PAIRING=0
+```
+
+Then restart:
+
+```bash
+./scripts/quickdesk-agent.sh restart
+```
+
+## iPhone and Apple Watch App
+
+Every developer needs a unique Bundle ID. The helper script updates:
+
+- iPhone bundle ID: `com.yourname.quickdesk`
+- Watch bundle ID: `com.yourname.quickdesk.watchkitapp`
+- Watch companion app bundle ID
+- Xcode `DEVELOPMENT_TEAM`
+
+Run:
+
+```bash
+./scripts/configure-ios-signing.sh YOUR_TEAM_ID com.yourname.quickdesk
+./scripts/build-ios-device.sh
 open ios/QuickDesk.xcodeproj
 ```
 
-Build and run the `QuickDesk` scheme on your iPhone. The watch app is embedded in the iPhone app, and can also be installed directly from Xcode by selecting the `QuickDeskWatch` target and your physical Apple Watch.
+If Xcode stalls while attaching the watch debugger, let it finish the install once, then open QuickDesk directly from the watch app list.
 
-If Xcode gets stuck on watchOS attach/debugging, install from Xcode once, then open QuickDesk directly from the watch app list.
+## Developer Pack
 
-## Pairing
+Open QuickDesk on iPhone, go to `Agent`, then tap `Install Developer Pack`.
 
-1. Start the desktop agent.
-2. Open QuickDesk on iPhone.
-3. Go to `Computers`.
-4. Tap `+`.
-5. Select the nearby agent, or enter the Mac LAN address manually.
-6. Tap `Pair`.
+The pack adds or updates useful tasks:
 
-Auto-pairing is enabled by default on the local network. Disable it with:
-
-```bash
-QUICKDESK_AUTO_PAIRING=0 npm start
-```
-
-## Using QuickDesk Away From Home Wi-Fi
-
-Bonjour discovery and private LAN IP addresses only work when the iPhone and Mac are on the same network. If your iPhone switches to 5G, addresses like `192.168.x.x` will not be reachable.
-
-Recommended remote options:
-
-### Option 1: Tailscale
-
-1. Install Tailscale on the Mac and iPhone.
-2. Keep the QuickDesk agent running on the Mac.
-3. In QuickDesk on iPhone, add the Mac using its Tailscale IP or MagicDNS name.
-4. Use port `7420`.
-
-Example:
-
-```text
-100.x.y.z
-macbook-name.tailnet-name.ts.net
-```
-
-### Option 2: HTTPS Tunnel
-
-Expose the local agent through a trusted HTTPS tunnel such as Cloudflare Tunnel. Then add the full tunnel URL in QuickDesk:
-
-```text
-https://quickdesk.example.com
-```
-
-Do not expose the agent directly to the public internet without authentication and transport security.
-
-### Notifications on 5G
-
-The app receives approval prompts through a live WebSocket connection while the iPhone app can reach the agent. It also pulls pending approvals when the app refreshes.
-
-For true push notifications while the iPhone app is closed, configure Apple Push Notifications on the iOS app and desktop agent.
-
-Required Apple setup:
-
-1. Use a paid Apple Developer Program team in Xcode Signing & Capabilities.
-2. Enable `Push Notifications` for the `com.barmor.quickdesk` App ID in Apple Developer.
-3. Enable the `Push Notifications` capability on the QuickDesk iPhone target in Xcode.
-4. Regenerate/download the provisioning profile so it includes `aps-environment`.
-5. Rebuild and reinstall the app.
-6. Create an APNs Auth Key (`.p8`) in Apple Developer.
-
-The project includes `QuickDesk.entitlements` with `aps-environment=development`. If the active provisioning profile does not include push, Xcode will fail with:
-
-```text
-Provisioning profile doesn't include the Push Notifications capability.
-Provisioning profile doesn't include the aps-environment entitlement.
-```
-
-After the iPhone app successfully registers its device token, configure the desktop agent:
-
-```bash
-export QUICKDESK_APNS_KEY_ID="ABC123DEFG"
-export QUICKDESK_APNS_TEAM_ID="YOUR_TEAM_ID"
-export QUICKDESK_APNS_KEY_PATH="$HOME/AuthKey_ABC123DEFG.p8"
-export QUICKDESK_APNS_TOPIC="com.barmor.quickdesk"
-export QUICKDESK_APNS_ENV="sandbox" # use production for TestFlight/App Store builds
-npm start
-```
-
-The iPhone app registers its APNs device token with the paired agent automatically. The agent status page shows whether APNs is configured and whether each phone has registered a push token.
-
-Apple Push Notifications require a paid Apple Developer Program team, the Push Notifications capability for the app identifier, and a provisioning profile that includes the `aps-environment` entitlement. Personal development teams do not support APNs.
-
-## Tasks
+| Task | Purpose |
+|---|---|
+| Open Codex | Opens Codex quickly from the Mac |
+| Open Claude Code | Launches Claude Code |
+| Open QuickDesk in Xcode | Opens the iOS project |
+| Run Agent Tests | Runs `npm test` for the desktop agent |
+| Build iPhone + Watch | Starts the Xcode build flow |
+| Open GitHub Repo | Opens the repository |
+| Open Agent Panel | Opens `http://127.0.0.1:7420/local` |
+| Tailscale Status | Shows Tailscale connectivity |
+| Free Dev Ports | Clears common local development ports |
+| Developer Launchpad | Opens a focused developer workspace |
 
 Tasks live in:
 
@@ -169,106 +233,132 @@ Tasks live in:
 ~/.quickdesk/tasks.json
 ```
 
-The first run seeds that file from:
+## Claude Code and Codex Approvals
+
+Install both hooks:
+
+```bash
+./scripts/install-approval-hooks.sh
+```
+
+Remove both hooks:
+
+```bash
+./scripts/install-approval-hooks.sh --remove
+```
+
+Claude Code uses a `PreToolUse` hook. Codex uses a `PermissionRequest` hook. Each hook sends approval prompts to the local agent, waits for your decision from iPhone or Apple Watch, and returns that decision to the originating tool.
+
+Codex must be configured to ask for approvals. If its approval policy is `never`, there is no prompt for QuickDesk to forward.
+
+## Remote Use
+
+Bonjour discovery and private LAN addresses work only when the iPhone and Mac are on the same network. For 5G or remote use, use Tailscale or an HTTPS tunnel.
+
+### Tailscale
+
+1. Install Tailscale on the Mac and iPhone.
+2. Keep the QuickDesk agent running on the Mac.
+3. Add the Mac in QuickDesk using its Tailscale IP or MagicDNS name.
+4. Use port `7420`.
+
+Examples:
 
 ```text
-desktop-agent/tasks.example.json
+100.x.y.z
+macbook-name.tailnet-name.ts.net
 ```
 
-Each task can open apps, open URLs, run commands, run scripts, or perform system actions.
+### HTTPS Tunnel
 
-### Developer Pack
+Expose the local agent through a trusted HTTPS tunnel, then add the full HTTPS URL in QuickDesk:
 
-Open QuickDesk on iPhone, go to `Agent`, then tap `Install Developer Pack`.
-
-This adds or updates:
-
-- Open Codex
-- Open Claude Code
-- Open QuickDesk in Xcode
-- Run Agent Tests
-- Build iPhone + Watch
-- Open GitHub Repo
-- Open Agent Panel
-- Tailscale Status
-- Free Dev Ports
-- Developer Launchpad
-
-Example:
-
-```json
-{
-  "id": "open-claude-code",
-  "name": "Open Claude Code",
-  "icon": "curlybraces.square.fill",
-  "category": "Development",
-  "requiresConfirmation": false,
-  "actions": [
-    { "type": "openApp", "value": "Terminal", "order": 1 },
-    { "type": "runCommand", "value": "osascript -e 'tell application \"Terminal\" to activate' -e 'tell application \"Terminal\" to do script \"claude\"'", "order": 2 }
-  ]
-}
+```text
+https://quickdesk.example.com
 ```
 
-## Claude Code Approval Forwarding
+Do not expose port `7420` directly to the public internet.
 
-Install the Claude Code hook:
+## Push Notifications
+
+Without APNs, QuickDesk receives approvals through the live WebSocket connection while the iPhone app can reach the agent. It also pulls pending approvals when the app refreshes.
+
+For true push notifications while the app is closed or the phone is away from Wi-Fi, configure APNs.
+
+Apple setup:
+
+1. Use a paid Apple Developer Program team.
+2. Enable `Push Notifications` for your iPhone App ID.
+3. Enable the `Push Notifications` capability on the QuickDesk iPhone target.
+4. Regenerate or download a provisioning profile that includes `aps-environment`.
+5. Rebuild and reinstall the app.
+6. Create an APNs Auth Key (`.p8`) in Apple Developer.
+
+Agent setup in `~/.quickdesk/agent.env`:
 
 ```bash
-cd desktop-agent
-node scripts/install-claude-hook.mjs
+QUICKDESK_APNS_KEY_ID=ABC123DEFG
+QUICKDESK_APNS_TEAM_ID=YOUR_TEAM_ID
+QUICKDESK_APNS_KEY_PATH=$HOME/AuthKey_ABC123DEFG.p8
+QUICKDESK_APNS_TOPIC=com.yourname.quickdesk
+QUICKDESK_APNS_ENV=sandbox
 ```
 
-Then approve/trust the hook in Claude Code if prompted.
-
-## Codex Approval Forwarding
-
-Install the Codex hook:
+Restart the agent:
 
 ```bash
-cd desktop-agent
-node scripts/install-codex-hook.mjs
+./scripts/quickdesk-agent.sh restart
 ```
 
-Then open Codex hooks settings and trust the hook if prompted. Codex must be configured to ask for approvals; if approval policy is set to `never`, there will be no approval prompt to forward.
+Use `sandbox` for Xcode development installs and `production` for TestFlight/App Store builds.
 
-## Local Approval Test
+## Security Model
 
-After pairing the iPhone/watch, you can create a test approval:
+QuickDesk is designed for trusted personal devices and trusted networks.
 
-```bash
-TOKEN=$(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.env.HOME+"/.quickdesk/identity.json","utf8")).localToken)')
-curl -X POST http://127.0.0.1:7420/approvals \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"source":"codex","title":"QuickDesk test approval","summary":"Testing iPhone and Apple Watch notifications.","tool":"notification-test"}'
-```
-
-You should see the approval appear on the iPhone and Apple Watch.
-
-## Security Notes
-
-QuickDesk is designed for a trusted local network.
-
-- Pairing creates bearer tokens for clients.
-- Local hooks use a private token stored in `~/.quickdesk/identity.json`.
-- Dangerous system actions are blocked unless explicitly enabled in the agent identity.
-- Do not expose port `7420` to the public internet.
+| Area | Behavior |
+|---|---|
+| Pairing | Creates bearer tokens for paired clients |
+| Hooks | Use a private machine-local token in `~/.quickdesk/identity.json` |
+| Dangerous tasks | Shutdown and restart are blocked unless explicitly enabled |
+| Network | Local-first by default; use Tailscale or HTTPS for remote access |
+| Public internet | Direct public exposure of port `7420` is not recommended |
 
 ## Development
 
-Run desktop-agent tests:
+Run tests:
 
 ```bash
-cd desktop-agent
-npm test
+npm --prefix desktop-agent test
 ```
 
-Build the iOS/watchOS app:
+Build iOS/watchOS:
 
 ```bash
-xcodebuild -project ios/QuickDesk.xcodeproj -scheme QuickDesk -configuration Debug -destination 'generic/platform=iOS' build
+xcodebuild \
+  -project ios/QuickDesk.xcodeproj \
+  -scheme QuickDesk \
+  -configuration Debug \
+  -destination 'generic/platform=iOS' \
+  build
 ```
+
+Open the project:
+
+```bash
+open ios/QuickDesk.xcodeproj
+```
+
+## Troubleshooting
+
+| Problem | Fix |
+|---|---|
+| iPhone cannot discover the Mac | Make sure both devices are on the same Wi-Fi, the agent is running, and Local Network permission is allowed |
+| Works on Wi-Fi but not 5G | Use Tailscale or an HTTPS tunnel |
+| ATS blocks `http://...` | Use the host field without `http://`, or use HTTPS for remote tunnel URLs |
+| Watch app shows disconnected | Open the iPhone app once so it can sync state to the watch |
+| No push notification | APNs requires a paid Apple Developer Program team and a push-enabled provisioning profile |
+| Codex approvals do not appear | Make sure Codex is configured to ask for approvals and the hook is trusted |
 
 ## License
 

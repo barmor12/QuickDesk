@@ -63,27 +63,41 @@ function describe(toolName, input = {}) {
  * cleanup() to restore the terminal if the watch wins the race.
  */
 function terminalRace(d, onDecide) {
-  let wfd, rfd, ttyIn;
+  let wfd, rfd, ttyIn, rawOn = false;
+  const write = (s) => { try { if (wfd != null) writeSync(wfd, s); } catch {} };
+  // Restore the terminal (raw mode + input) but keep the write fd open so the
+  // final resolution can still be echoed. close() releases the fd afterwards.
   const cleanup = () => {
-    try { if (ttyIn) { ttyIn.setRawMode(false); ttyIn.pause(); ttyIn.destroy(); } } catch {}
+    try { if (ttyIn) { if (rawOn) ttyIn.setRawMode(false); ttyIn.pause(); ttyIn.destroy(); ttyIn = null; } } catch {}
+  };
+  cleanup.close = () => {
     try { if (wfd != null) { writeSync(wfd, "\r\n"); closeSync(wfd); wfd = null; } } catch {}
   };
   try {
     wfd = openSync("/dev/tty", "w");
-    writeSync(wfd, `\r\n⌚ QuickDesk: Claude wants to ${d.title}${d.summary ? `: ${d.summary}` : ""}\r\n   Approve on your Watch, or press  [y] allow   [n] deny ... `);
+    const summary = d.summary ? `\x1b[2m${d.summary}\x1b[0m` : "(no details)";
+    write(
+      `\r\n\x1b[1;36m+- QuickDesk approval --------------------------------\x1b[0m\r\n` +
+      `\x1b[1;36m|\x1b[0m Claude wants to \x1b[1m${d.title}\x1b[0m\r\n` +
+      `\x1b[1;36m|\x1b[0m ${summary}\r\n` +
+      `\x1b[1;36m|\x1b[0m Decide on \x1b[1mWatch\x1b[0m / \x1b[1miPhone\x1b[0m, or here: \x1b[1;32m[y]\x1b[0m allow  \x1b[1;31m[n]\x1b[0m deny\r\n` +
+      `\x1b[1;36m+----------------------------------------------------\x1b[0m\r\n`
+    );
     rfd = openSync("/dev/tty", "r");
     ttyIn = new tty.ReadStream(rfd);
-    ttyIn.setRawMode(true);
+    try { ttyIn.setRawMode(true); rawOn = true; } catch { /* line-buffered fallback */ }
     ttyIn.resume();
     ttyIn.on("data", (buf) => {
-      const ch = buf.toString().toLowerCase();
-      if (ch === "y" || ch === "\r" || ch === "\n") onDecide("allow");
-      else if (ch === "n" || ch === "") onDecide("deny");
+      const ch = buf.toString().trim().toLowerCase();
+      if (ch === "y" || ch === "") onDecide("allow");   // y or Enter
+      else if (ch === "n") onDecide("deny");
       // ignore other keys
     });
   } catch {
-    // No controlling terminal (e.g. non-interactive). Watch-only.
+    // No controlling terminal (e.g. non-interactive). Watch/phone only.
+    wfd = null;
   }
+  cleanup.echo = write;   // lets the resolution be echoed to the same terminal
   return cleanup;
 }
 
@@ -154,8 +168,23 @@ async function main() {
     } catch {}
   }
 
-  if (result.decision === "allow") emitDecision("allow", `Approved on ${result.from === "terminal" ? "terminal" : "Apple Watch"}`);
-  if (result.decision === "deny") emitDecision("deny", `Denied on ${result.from === "terminal" ? "terminal" : "Apple Watch"}`);
+  // Echo the outcome to the terminal so it reflects the decision no matter
+  // where it came from (terminal, Watch, or iPhone).
+  const where = result.from === "terminal" ? "terminal"
+              : result.from === "watch" ? "Watch/iPhone"
+              : result.from;
+  if (result.decision === "allow" || result.decision === "deny") {
+    const ok = result.decision === "allow";
+    try {
+      cleanupTerminal.echo?.(
+        `\x1b[1;${ok ? "32" : "31"}m${ok ? "✓ Allowed" : "✗ Denied"} on ${where}\x1b[0m\r\n`
+      );
+    } catch {}
+  }
+  try { cleanupTerminal.close?.(); } catch {}
+
+  if (result.decision === "allow") emitDecision("allow", `Approved on ${where}`);
+  if (result.decision === "deny") emitDecision("deny", `Denied on ${where}`);
   passThrough(); // expired/timeout -> normal Claude prompt
 }
 

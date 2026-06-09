@@ -194,6 +194,8 @@ struct SyncPayload: Codable {
     var isConnected: Bool = false
     var computerName: String?
     var computerAddress: String?
+    var favoriteIDs: [String] = []      // ids within `tasks` the user starred on iPhone
+    var lastLog: ExecutionLog?          // most recent execution result, for the watch status screen
 }
 
 enum WatchMessage {

@@ -7,22 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		18008F96883A08C22CF5F8B3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E082D0370A40D608F82EEE2A /* Assets.xcassets */; };
+		20A0012E65368F752BBF02B8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 555E8E3EEAE9873DFDADD45E /* Assets.xcassets */; };
 		2A08FC74483419590939D58C /* QuickDeskWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 1A46864E0A5CCC7EF78DB5C9 /* QuickDeskWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		31EAD38A748E44D990DBA9E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 31EAD38A748E44D990DBA9E6 /* Assets.xcassets */; };
 		49F10645E8B87EB606EA11F6 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C764C868595627DA273E1D /* Models.swift */; };
 		52C4FFEA67E0089C70967ABD /* QuickDeskApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94000E362D414E74F6F7D2A4 /* QuickDeskApp.swift */; };
 		5FCBE8EE2D31FB82C35C6B76 /* WatchState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1F7915A754D0D51C10751D /* WatchState.swift */; };
 		61F6543F6356DB8E7990CAB7 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C764C868595627DA273E1D /* Models.swift */; };
 		71DE958F190D04815C760EEB /* AgentSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56B7CF54F33673A28DEE615B /* AgentSocket.swift */; };
-		8B66C908926E47A78C3824F7 /* AgentDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F621E62B4E44FB9365EB7D /* AgentDiscovery.swift */; };
 		99A78B79091DDDED026142E0 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40202A4DF41AAAE882AA627E /* Persistence.swift */; };
 		9C9380DAFAC80DBE494B7964 /* Views.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3BCA1F7EBBD40F5EB16EAC /* Views.swift */; };
 		A4F0413D3DF2C9B0F437059C /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE31E3B19CFB08E2A7FA0E30 /* AppState.swift */; };
 		A7AEB678C7BE50205D7F2406 /* WatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE41AF557D079AA277D0E176 /* WatchApp.swift */; };
 		CF5C58BE3A79E8F421915FCB /* AgentClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CB4D25991A63DCFFA7EBBF5 /* AgentClient.swift */; };
 		DED51994CE01D490893BE136 /* WatchSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB30571BBA2BC738C78ADAE /* WatchSessionManager.swift */; };
-		E12188AE7E7742C9A7784AA0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E12188AE7E7742C9A7784A9F /* Assets.xcassets */; };
 		F40412F8DA175BE567461266 /* PhoneSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDD1A85DB59A0E0DE062CD88 /* PhoneSessionManager.swift */; };
+		FE6FFF7E42717DBB66B05654 /* AgentDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8342ABEFF22400A81F32E97 /* AgentDiscovery.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,23 +52,23 @@
 /* Begin PBXFileReference section */
 		16C764C868595627DA273E1D /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		1A46864E0A5CCC7EF78DB5C9 /* QuickDeskWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuickDeskWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2BD5F6843B58CD117BC1C210 /* QuickDesk.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QuickDesk.entitlements; sourceTree = "<group>"; };
 		2CB30571BBA2BC738C78ADAE /* WatchSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSessionManager.swift; sourceTree = "<group>"; };
-		31EAD38A748E44D990DBA9E6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		40202A4DF41AAAE882AA627E /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
 		46C37368F5F8AAAE20CA6CB1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		4D0F0D02C228421AA7A00F2E /* QuickDesk.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QuickDesk.entitlements; sourceTree = "<group>"; };
+		555E8E3EEAE9873DFDADD45E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		56B7CF54F33673A28DEE615B /* AgentSocket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentSocket.swift; sourceTree = "<group>"; };
-		65F621E62B4E44FB9365EB7D /* AgentDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentDiscovery.swift; sourceTree = "<group>"; };
 		74C6E6EAC34F225F58E25D36 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7CB4D25991A63DCFFA7EBBF5 /* AgentClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentClient.swift; sourceTree = "<group>"; };
 		94000E362D414E74F6F7D2A4 /* QuickDeskApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickDeskApp.swift; sourceTree = "<group>"; };
 		BCF59E3EF567CCC09D7B944D /* QuickDesk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuickDesk.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC3BCA1F7EBBD40F5EB16EAC /* Views.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views.swift; sourceTree = "<group>"; };
 		CDD1A85DB59A0E0DE062CD88 /* PhoneSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneSessionManager.swift; sourceTree = "<group>"; };
+		D8342ABEFF22400A81F32E97 /* AgentDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentDiscovery.swift; sourceTree = "<group>"; };
+		E082D0370A40D608F82EEE2A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EC1F7915A754D0D51C10751D /* WatchState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchState.swift; sourceTree = "<group>"; };
 		EE31E3B19CFB08E2A7FA0E30 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		EE41AF557D079AA277D0E176 /* WatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchApp.swift; sourceTree = "<group>"; };
-		E12188AE7E7742C9A7784A9F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -85,7 +85,7 @@
 		7B34FD93FA1EB8097E9371FD /* QuickDeskWatch */ = {
 			isa = PBXGroup;
 			children = (
-				E12188AE7E7742C9A7784A9F /* Assets.xcassets */,
+				555E8E3EEAE9873DFDADD45E /* Assets.xcassets */,
 				74C6E6EAC34F225F58E25D36 /* Info.plist */,
 				EE41AF557D079AA277D0E176 /* WatchApp.swift */,
 				2CB30571BBA2BC738C78ADAE /* WatchSessionManager.swift */,
@@ -114,15 +114,15 @@
 		EA9B10D4413F4957FD89908E /* QuickDesk */ = {
 			isa = PBXGroup;
 			children = (
-				31EAD38A748E44D990DBA9E6 /* Assets.xcassets */,
 				7CB4D25991A63DCFFA7EBBF5 /* AgentClient.swift */,
-				65F621E62B4E44FB9365EB7D /* AgentDiscovery.swift */,
+				D8342ABEFF22400A81F32E97 /* AgentDiscovery.swift */,
 				56B7CF54F33673A28DEE615B /* AgentSocket.swift */,
 				EE31E3B19CFB08E2A7FA0E30 /* AppState.swift */,
+				E082D0370A40D608F82EEE2A /* Assets.xcassets */,
 				46C37368F5F8AAAE20CA6CB1 /* Info.plist */,
-				4D0F0D02C228421AA7A00F2E /* QuickDesk.entitlements */,
 				40202A4DF41AAAE882AA627E /* Persistence.swift */,
 				CDD1A85DB59A0E0DE062CD88 /* PhoneSessionManager.swift */,
+				2BD5F6843B58CD117BC1C210 /* QuickDesk.entitlements */,
 				94000E362D414E74F6F7D2A4 /* QuickDeskApp.swift */,
 				CC3BCA1F7EBBD40F5EB16EAC /* Views.swift */,
 			);
@@ -137,7 +137,7 @@
 			buildConfigurationList = 540C51BAF43F5DC69334AB96 /* Build configuration list for PBXNativeTarget "QuickDesk" */;
 			buildPhases = (
 				E1E8BA51433155C017D2C8B4 /* Sources */,
-				31EAD38A748E44D990DBA9E8 /* Resources */,
+				C4A0BBE055DE708F66C2775A /* Resources */,
 				C8A34D32751B70933588C079 /* Embed Watch Content */,
 			);
 			buildRules = (
@@ -157,7 +157,7 @@
 			buildConfigurationList = 093ED097AD129A6AD15B07A2 /* Build configuration list for PBXNativeTarget "QuickDeskWatch" */;
 			buildPhases = (
 				F33D00ACE37EAC56B87EF236 /* Sources */,
-				E12188AE7E7742C9A7784AA1 /* Resources */,
+				8C19C93196C4A2BD6BD0B5C2 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -208,19 +208,19 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		31EAD38A748E44D990DBA9E8 /* Resources */ = {
+		8C19C93196C4A2BD6BD0B5C2 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				31EAD38A748E44D990DBA9E7 /* Assets.xcassets in Resources */,
+				20A0012E65368F752BBF02B8 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		E12188AE7E7742C9A7784AA1 /* Resources */ = {
+		C4A0BBE055DE708F66C2775A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E12188AE7E7742C9A7784AA0 /* Assets.xcassets in Resources */,
+				18008F96883A08C22CF5F8B3 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -232,8 +232,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				CF5C58BE3A79E8F421915FCB /* AgentClient.swift in Sources */,
+				FE6FFF7E42717DBB66B05654 /* AgentDiscovery.swift in Sources */,
 				71DE958F190D04815C760EEB /* AgentSocket.swift in Sources */,
-				8B66C908926E47A78C3824F7 /* AgentDiscovery.swift in Sources */,
 				A4F0413D3DF2C9B0F437059C /* AppState.swift in Sources */,
 				49F10645E8B87EB606EA11F6 /* Models.swift in Sources */,
 				99A78B79091DDDED026142E0 /* Persistence.swift in Sources */,
@@ -269,7 +269,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = QuickDesk/QuickDesk.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = WAFU4BZ9FC;
 				INFOPLIST_FILE = QuickDesk/Info.plist;
@@ -362,7 +361,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = WAFU4BZ9FC;
 				INFOPLIST_FILE = QuickDeskWatch/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = com.barmor.quickdesk.watchkitapp;
 				SDKROOT = watchos;
@@ -376,9 +374,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = QuickDesk/QuickDesk.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = WAFU4BZ9FC;
 				INFOPLIST_FILE = QuickDesk/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

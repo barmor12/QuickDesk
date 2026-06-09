@@ -142,7 +142,9 @@ final class AppState {
                            approvals: pendingApprovals,
                            isConnected: isConnected,
                            computerName: selectedComputer?.name,
-                           computerAddress: address)
+                           computerAddress: address,
+                           favoriteIDs: Array(favoriteTaskIDs),
+                           lastLog: logs.first)
     }
 
     /// Send the current tasks + pending approvals + connection status to the watch.
