@@ -1,0 +1,176 @@
+import Foundation
+import Observation
+
+/// Central app state for the iPhone app. Owns the computer list, the active
+/// agent connection (HTTP + WebSocket), tasks, logs, and live approvals, and
+/// bridges everything to the watch via `PhoneSessionManager`.
+@MainActor
+@Observable
+final class AppState {
+    var computers: [Computer] = []
+    var selectedComputerID: String?
+    var tasks: [AgentTask] = []
+    var logs: [ExecutionLog] = []
+    var pendingApprovals: [ApprovalRequest] = []
+    var lastError: String?
+    var isConnected = false
+    var favoriteTaskIDs: Set<String> = []
+
+    private var socket: AgentSocket?
+    private let session = PhoneSessionManager.shared
+
+    var selectedComputer: Computer? {
+        computers.first { $0.id == selectedComputerID }
+    }
+
+    init() {
+        computers = Persistence.loadComputers()
+        selectedComputerID = Persistence.loadSelectedID() ?? computers.first?.id
+        favoriteTaskIDs = Persistence.loadFavoriteTaskIDs()
+        session.appState = self
+        session.activate()
+        if selectedComputer != nil { connect() }
+    }
+
+    // MARK: - Computers
+
+    func addComputer(_ c: Computer) {
+        computers.removeAll { $0.id == c.id }
+        computers.append(c)
+        selectedComputerID = c.id
+        persist()
+        connect()
+    }
+
+    func removeComputer(_ c: Computer) {
+        computers.removeAll { $0.id == c.id }
+        if selectedComputerID == c.id { selectedComputerID = computers.first?.id }
+        persist()
+        connect()
+    }
+
+    func select(_ c: Computer) {
+        selectedComputerID = c.id
+        persist()
+        connect()
+    }
+
+    private func persist() {
+        Persistence.saveComputers(computers)
+        Persistence.saveSelectedID(selectedComputerID)
+    }
+
+    private func updateSelectedComputer(with endpoint: AgentEndpoint) {
+        guard let index = computers.firstIndex(where: { $0.id == endpoint.id }) else { return }
+        guard computers[index].host != endpoint.host || computers[index].port != endpoint.port else { return }
+        computers[index].host = endpoint.host
+        computers[index].port = endpoint.port
+        persist()
+    }
+
+    // MARK: - Connection lifecycle
+
+    func connect() {
+        socket?.disconnect()
+        socket = nil
+        isConnected = false
+        guard let computer = selectedComputer else { return }
+
+        let sock = AgentSocket(computer: computer)
+        sock.onEvent = { [weak self] event in
+            Task { @MainActor in self?.handle(event) }
+        }
+        sock.connect()
+        socket = sock
+        isConnected = true
+
+        Task { await refresh() }
+    }
+
+    private func handle(_ event: AgentSocket.Event) {
+        switch event {
+        case .approvalCreated(let a):
+            if !pendingApprovals.contains(where: { $0.id == a.id }) {
+                pendingApprovals.append(a)
+            }
+            pushStateToWatch()               // push tasks + approvals to watch
+        case .approvalResolved(let a):
+            pendingApprovals.removeAll { $0.id == a.id }
+            pushStateToWatch()
+        case .executionFinished(let log):
+            logs.insert(log, at: 0)
+            session.sendStatus(log)
+        }
+    }
+
+    /// Send the current tasks + pending approvals to the watch.
+    func pushStateToWatch() {
+        let favoriteTasks = tasks.sorted { lhs, rhs in
+            let lf = favoriteTaskIDs.contains(lhs.id)
+            let rf = favoriteTaskIDs.contains(rhs.id)
+            if lf != rf { return lf && !rf }
+            return lhs.name < rhs.name
+        }
+        session.pushState(tasks: favoriteTasks, approvals: pendingApprovals)
+    }
+
+    func isFavorite(_ task: AgentTask) -> Bool {
+        favoriteTaskIDs.contains(task.id)
+    }
+
+    func toggleFavorite(_ task: AgentTask) {
+        if favoriteTaskIDs.contains(task.id) {
+            favoriteTaskIDs.remove(task.id)
+        } else {
+            favoriteTaskIDs.insert(task.id)
+        }
+        Persistence.saveFavoriteTaskIDs(favoriteTaskIDs)
+        pushStateToWatch()
+    }
+
+    // MARK: - Data
+
+    func refresh() async {
+        guard let computer = selectedComputer else { return }
+        if let endpoint = await AgentDiscovery.shared.endpoint(for: computer, timeout: 1.2) {
+            updateSelectedComputer(with: endpoint)
+        }
+        guard let computer = selectedComputer else { return }
+        let client = AgentClient(computer: computer)
+        do {
+            tasks = try await client.fetchTasks()
+            logs = try await client.fetchLogs()
+            pushStateToWatch()               // keep watch in sync
+            isConnected = true
+            lastError = nil
+        } catch {
+            lastError = error.localizedDescription
+            isConnected = false
+        }
+    }
+
+    // MARK: - Actions (also invoked on behalf of the watch)
+
+    func execute(taskId: String, confirmed: Bool) async -> ExecutionLog? {
+        guard let computer = selectedComputer else { return nil }
+        do {
+            let log = try await AgentClient(computer: computer).execute(taskId: taskId, confirmed: confirmed)
+            logs.insert(log, at: 0)
+            return log
+        } catch {
+            lastError = error.localizedDescription
+            return nil
+        }
+    }
+
+    func decide(approvalID: String, decision: String) async {
+        guard let computer = selectedComputer else { return }
+        pendingApprovals.removeAll { $0.id == approvalID }
+        pushStateToWatch()   // clear the approval on the watch immediately
+        do {
+            try await AgentClient(computer: computer).decideApproval(id: approvalID, decision: decision)
+        } catch {
+            lastError = error.localizedDescription
+        }
+    }
+}

@@ -1,0 +1,82 @@
+{
+  "tasks": [
+    {
+      "id": "start-project",
+      "name": "Start Dev Workspace",
+      "icon": "hammer.circle.fill",
+      "category": "Development",
+      "requiresConfirmation": false,
+      "actions": [
+        { "type": "openApp", "value": "Visual Studio Code", "order": 1 },
+        { "type": "openApp", "value": "Terminal", "order": 2 },
+        { "type": "openUrl", "value": "http://localhost:3000", "order": 3 },
+        { "type": "openUrl", "value": "http://127.0.0.1:7420/local", "order": 4 }
+      ]
+    },
+    {
+      "id": "ai-command-center",
+      "name": "AI Command Center",
+      "icon": "sparkles",
+      "category": "Development",
+      "requiresConfirmation": false,
+      "actions": [
+        { "type": "openApp", "value": "Claude", "order": 1 },
+        { "type": "openApp", "value": "ChatGPT", "order": 2 },
+        { "type": "openApp", "value": "Terminal", "order": 3 }
+      ]
+    },
+    {
+      "id": "open-claude-code",
+      "name": "Open Claude Code",
+      "icon": "curlybraces.square.fill",
+      "category": "Development",
+      "requiresConfirmation": false,
+      "actions": [
+        { "type": "openApp", "value": "Terminal", "order": 1 },
+        { "type": "runCommand", "value": "osascript -e 'tell application \"Terminal\" to activate' -e 'tell application \"Terminal\" to do script \"claude\"'", "order": 2 }
+      ]
+    },
+    {
+      "id": "focus-work-mode",
+      "name": "Focus Work Mode",
+      "icon": "briefcase.circle.fill",
+      "category": "Work",
+      "requiresConfirmation": false,
+      "actions": [
+        { "type": "openUrl", "value": "https://mail.google.com", "order": 1 },
+        { "type": "openUrl", "value": "https://calendar.google.com", "order": 2 },
+        { "type": "openUrl", "value": "https://linear.app", "order": 3 }
+      ]
+    },
+    {
+      "id": "quickdesk-agent",
+      "name": "Open Agent Panel",
+      "icon": "wave.3.right.circle.fill",
+      "category": "Custom",
+      "requiresConfirmation": false,
+      "actions": [
+        { "type": "openUrl", "value": "http://127.0.0.1:7420/local", "order": 1 }
+      ]
+    },
+    {
+      "id": "free-dev-ports",
+      "name": "Free Dev Ports",
+      "icon": "network",
+      "category": "Development",
+      "requiresConfirmation": true,
+      "actions": [
+        { "type": "runCommand", "value": "lsof -ti tcp:3000,3001,5173,8080 | xargs kill -9 2>/dev/null || true", "order": 1 }
+      ]
+    },
+    {
+      "id": "lock-computer",
+      "name": "Lock Computer",
+      "icon": "lock.circle.fill",
+      "category": "System",
+      "requiresConfirmation": true,
+      "actions": [
+        { "type": "systemAction", "value": "lock", "order": 1 }
+      ]
+    }
+  ]
+}

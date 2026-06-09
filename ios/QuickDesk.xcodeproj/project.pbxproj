@@ -1,0 +1,490 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2A08FC74483419590939D58C /* QuickDeskWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 1A46864E0A5CCC7EF78DB5C9 /* QuickDeskWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		31EAD38A748E44D990DBA9E7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 31EAD38A748E44D990DBA9E6 /* Assets.xcassets */; };
+		49F10645E8B87EB606EA11F6 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C764C868595627DA273E1D /* Models.swift */; };
+		52C4FFEA67E0089C70967ABD /* QuickDeskApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94000E362D414E74F6F7D2A4 /* QuickDeskApp.swift */; };
+		5FCBE8EE2D31FB82C35C6B76 /* WatchState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1F7915A754D0D51C10751D /* WatchState.swift */; };
+		61F6543F6356DB8E7990CAB7 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16C764C868595627DA273E1D /* Models.swift */; };
+		71DE958F190D04815C760EEB /* AgentSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56B7CF54F33673A28DEE615B /* AgentSocket.swift */; };
+		8B66C908926E47A78C3824F7 /* AgentDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65F621E62B4E44FB9365EB7D /* AgentDiscovery.swift */; };
+		99A78B79091DDDED026142E0 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40202A4DF41AAAE882AA627E /* Persistence.swift */; };
+		9C9380DAFAC80DBE494B7964 /* Views.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3BCA1F7EBBD40F5EB16EAC /* Views.swift */; };
+		A4F0413D3DF2C9B0F437059C /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE31E3B19CFB08E2A7FA0E30 /* AppState.swift */; };
+		A7AEB678C7BE50205D7F2406 /* WatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE41AF557D079AA277D0E176 /* WatchApp.swift */; };
+		CF5C58BE3A79E8F421915FCB /* AgentClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CB4D25991A63DCFFA7EBBF5 /* AgentClient.swift */; };
+		DED51994CE01D490893BE136 /* WatchSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB30571BBA2BC738C78ADAE /* WatchSessionManager.swift */; };
+		E12188AE7E7742C9A7784AA0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E12188AE7E7742C9A7784A9F /* Assets.xcassets */; };
+		F40412F8DA175BE567461266 /* PhoneSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDD1A85DB59A0E0DE062CD88 /* PhoneSessionManager.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		244E3CAACC404B028E147CFF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2D27DE7A40B22335A063CED0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F1AA89260598777A2E08AE04;
+			remoteInfo = QuickDeskWatch;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		C8A34D32751B70933588C079 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				2A08FC74483419590939D58C /* QuickDeskWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		16C764C868595627DA273E1D /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		1A46864E0A5CCC7EF78DB5C9 /* QuickDeskWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuickDeskWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2CB30571BBA2BC738C78ADAE /* WatchSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSessionManager.swift; sourceTree = "<group>"; };
+		31EAD38A748E44D990DBA9E6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		40202A4DF41AAAE882AA627E /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
+		46C37368F5F8AAAE20CA6CB1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		56B7CF54F33673A28DEE615B /* AgentSocket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentSocket.swift; sourceTree = "<group>"; };
+		65F621E62B4E44FB9365EB7D /* AgentDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentDiscovery.swift; sourceTree = "<group>"; };
+		74C6E6EAC34F225F58E25D36 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		7CB4D25991A63DCFFA7EBBF5 /* AgentClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgentClient.swift; sourceTree = "<group>"; };
+		94000E362D414E74F6F7D2A4 /* QuickDeskApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickDeskApp.swift; sourceTree = "<group>"; };
+		BCF59E3EF567CCC09D7B944D /* QuickDesk.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QuickDesk.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC3BCA1F7EBBD40F5EB16EAC /* Views.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views.swift; sourceTree = "<group>"; };
+		CDD1A85DB59A0E0DE062CD88 /* PhoneSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneSessionManager.swift; sourceTree = "<group>"; };
+		EC1F7915A754D0D51C10751D /* WatchState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchState.swift; sourceTree = "<group>"; };
+		EE31E3B19CFB08E2A7FA0E30 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		EE41AF557D079AA277D0E176 /* WatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchApp.swift; sourceTree = "<group>"; };
+		E12188AE7E7742C9A7784A9F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		53BE8F876B59C51A76D0851B = {
+			isa = PBXGroup;
+			children = (
+				EA9B10D4413F4957FD89908E /* QuickDesk */,
+				7B34FD93FA1EB8097E9371FD /* QuickDeskWatch */,
+				AB52221C5402D25A0D0D43AF /* Shared */,
+				D94D0887A9F1A39FF8051865 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7B34FD93FA1EB8097E9371FD /* QuickDeskWatch */ = {
+			isa = PBXGroup;
+			children = (
+				E12188AE7E7742C9A7784A9F /* Assets.xcassets */,
+				74C6E6EAC34F225F58E25D36 /* Info.plist */,
+				EE41AF557D079AA277D0E176 /* WatchApp.swift */,
+				2CB30571BBA2BC738C78ADAE /* WatchSessionManager.swift */,
+				EC1F7915A754D0D51C10751D /* WatchState.swift */,
+			);
+			path = QuickDeskWatch;
+			sourceTree = "<group>";
+		};
+		AB52221C5402D25A0D0D43AF /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				16C764C868595627DA273E1D /* Models.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		D94D0887A9F1A39FF8051865 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BCF59E3EF567CCC09D7B944D /* QuickDesk.app */,
+				1A46864E0A5CCC7EF78DB5C9 /* QuickDeskWatch.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EA9B10D4413F4957FD89908E /* QuickDesk */ = {
+			isa = PBXGroup;
+			children = (
+				31EAD38A748E44D990DBA9E6 /* Assets.xcassets */,
+				7CB4D25991A63DCFFA7EBBF5 /* AgentClient.swift */,
+				65F621E62B4E44FB9365EB7D /* AgentDiscovery.swift */,
+				56B7CF54F33673A28DEE615B /* AgentSocket.swift */,
+				EE31E3B19CFB08E2A7FA0E30 /* AppState.swift */,
+				46C37368F5F8AAAE20CA6CB1 /* Info.plist */,
+				40202A4DF41AAAE882AA627E /* Persistence.swift */,
+				CDD1A85DB59A0E0DE062CD88 /* PhoneSessionManager.swift */,
+				94000E362D414E74F6F7D2A4 /* QuickDeskApp.swift */,
+				CC3BCA1F7EBBD40F5EB16EAC /* Views.swift */,
+			);
+			path = QuickDesk;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		EF50F3EFA360009C088C36F8 /* QuickDesk */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 540C51BAF43F5DC69334AB96 /* Build configuration list for PBXNativeTarget "QuickDesk" */;
+			buildPhases = (
+				E1E8BA51433155C017D2C8B4 /* Sources */,
+				31EAD38A748E44D990DBA9E8 /* Resources */,
+				C8A34D32751B70933588C079 /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D57CBF23CC5F173239B810D3 /* PBXTargetDependency */,
+			);
+			name = QuickDesk;
+			packageProductDependencies = (
+			);
+			productName = QuickDesk;
+			productReference = BCF59E3EF567CCC09D7B944D /* QuickDesk.app */;
+			productType = "com.apple.product-type.application";
+		};
+		F1AA89260598777A2E08AE04 /* QuickDeskWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 093ED097AD129A6AD15B07A2 /* Build configuration list for PBXNativeTarget "QuickDeskWatch" */;
+			buildPhases = (
+				F33D00ACE37EAC56B87EF236 /* Sources */,
+				E12188AE7E7742C9A7784AA1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = QuickDeskWatch;
+			packageProductDependencies = (
+			);
+			productName = QuickDeskWatch;
+			productReference = 1A46864E0A5CCC7EF78DB5C9 /* QuickDeskWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2D27DE7A40B22335A063CED0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					EF50F3EFA360009C088C36F8 = {
+						ProvisioningStyle = Automatic;
+					};
+					F1AA89260598777A2E08AE04 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 5D3190DE1ADA7A793EA4DC93 /* Build configuration list for PBXProject "QuickDesk" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 53BE8F876B59C51A76D0851B;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = D94D0887A9F1A39FF8051865 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				EF50F3EFA360009C088C36F8 /* QuickDesk */,
+				F1AA89260598777A2E08AE04 /* QuickDeskWatch */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		31EAD38A748E44D990DBA9E8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				31EAD38A748E44D990DBA9E7 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E12188AE7E7742C9A7784AA1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E12188AE7E7742C9A7784AA0 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E1E8BA51433155C017D2C8B4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CF5C58BE3A79E8F421915FCB /* AgentClient.swift in Sources */,
+				71DE958F190D04815C760EEB /* AgentSocket.swift in Sources */,
+				8B66C908926E47A78C3824F7 /* AgentDiscovery.swift in Sources */,
+				A4F0413D3DF2C9B0F437059C /* AppState.swift in Sources */,
+				49F10645E8B87EB606EA11F6 /* Models.swift in Sources */,
+				99A78B79091DDDED026142E0 /* Persistence.swift in Sources */,
+				F40412F8DA175BE567461266 /* PhoneSessionManager.swift in Sources */,
+				52C4FFEA67E0089C70967ABD /* QuickDeskApp.swift in Sources */,
+				9C9380DAFAC80DBE494B7964 /* Views.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F33D00ACE37EAC56B87EF236 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				61F6543F6356DB8E7990CAB7 /* Models.swift in Sources */,
+				A7AEB678C7BE50205D7F2406 /* WatchApp.swift in Sources */,
+				DED51994CE01D490893BE136 /* WatchSessionManager.swift in Sources */,
+				5FCBE8EE2D31FB82C35C6B76 /* WatchState.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D57CBF23CC5F173239B810D3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F1AA89260598777A2E08AE04 /* QuickDeskWatch */;
+			targetProxy = 244E3CAACC404B028E147CFF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		2BE479A29404A4AE79358EBF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = WAFU4BZ9FC;
+				INFOPLIST_FILE = QuickDesk/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.barmor.quickdesk;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		4693DF3735706B3E3F43ECC5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = WAFU4BZ9FC;
+				INFOPLIST_FILE = QuickDeskWatch/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.barmor.quickdesk.watchkitapp;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		7BEBF14C2409A8DEB63C5B58 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = MDCAVQG3H6;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		967FCC61D888EC1ED0035EDE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = WAFU4BZ9FC;
+				INFOPLIST_FILE = QuickDeskWatch/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.barmor.quickdesk.watchkitapp;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		D46A838C6FE84028052EBE72 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = WAFU4BZ9FC;
+				INFOPLIST_FILE = QuickDesk/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.barmor.quickdesk;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		D8129B8DC722BB7151C0FD29 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = MDCAVQG3H6;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		093ED097AD129A6AD15B07A2 /* Build configuration list for PBXNativeTarget "QuickDeskWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4693DF3735706B3E3F43ECC5 /* Debug */,
+				967FCC61D888EC1ED0035EDE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		540C51BAF43F5DC69334AB96 /* Build configuration list for PBXNativeTarget "QuickDesk" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2BE479A29404A4AE79358EBF /* Debug */,
+				D46A838C6FE84028052EBE72 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		5D3190DE1ADA7A793EA4DC93 /* Build configuration list for PBXProject "QuickDesk" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D8129B8DC722BB7151C0FD29 /* Debug */,
+				7BEBF14C2409A8DEB63C5B58 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2D27DE7A40B22335A063CED0 /* Project object */;
+}

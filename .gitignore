@@ -1,0 +1,25 @@
+.DS_Store
+
+# Node
+desktop-agent/node_modules/
+npm-debug.log*
+
+# QuickDesk local data
+.quickdesk/
+identity.json
+logs.json
+tasks.json
+
+# Xcode
+DerivedData/
+ios/build/
+ios/build-device/
+*.xcuserstate
+xcuserdata/
+
+# Local assistant/editor settings
+.claude/settings.local.json
+
+# macOS / temp
+*.swp
+*.tmp
