@@ -128,7 +128,25 @@ Do not expose the agent directly to the public internet without authentication a
 
 The app receives approval prompts through a live WebSocket connection while the iPhone app can reach the agent. It also pulls pending approvals when the app refreshes.
 
-For true push notifications while the iPhone app is closed, configure Apple Push Notifications on the desktop agent:
+For true push notifications while the iPhone app is closed, configure Apple Push Notifications on the iOS app and desktop agent.
+
+Required Apple setup:
+
+1. Use a paid Apple Developer Program team in Xcode Signing & Capabilities.
+2. Enable `Push Notifications` for the `com.barmor.quickdesk` App ID in Apple Developer.
+3. Enable the `Push Notifications` capability on the QuickDesk iPhone target in Xcode.
+4. Regenerate/download the provisioning profile so it includes `aps-environment`.
+5. Rebuild and reinstall the app.
+6. Create an APNs Auth Key (`.p8`) in Apple Developer.
+
+The project includes `QuickDesk.entitlements` with `aps-environment=development`. If the active provisioning profile does not include push, Xcode will fail with:
+
+```text
+Provisioning profile doesn't include the Push Notifications capability.
+Provisioning profile doesn't include the aps-environment entitlement.
+```
+
+After the iPhone app successfully registers its device token, configure the desktop agent:
 
 ```bash
 export QUICKDESK_APNS_KEY_ID="ABC123DEFG"

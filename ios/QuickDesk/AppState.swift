@@ -248,6 +248,11 @@ final class AppState {
         content.title = approval.title
         content.body = approval.summary.isEmpty ? "QuickDesk approval is waiting." : approval.summary
         content.sound = .default
+        content.categoryIdentifier = "QUICKDESK_APPROVAL"
+        content.userInfo = [
+            "approvalId": approval.id,
+            "source": approval.source,
+        ]
 
         let request = UNNotificationRequest(
             identifier: "quickdesk.approval.\(approval.id)",

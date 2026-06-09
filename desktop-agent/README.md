@@ -34,7 +34,17 @@ The one-time code remains a manual fallback if Bonjour discovery is unavailable.
 ## Apple Push Notifications
 
 For true push notifications while the iPhone is on 5G or the app is closed,
-configure the agent with an Apple Developer APNs key:
+configure the iPhone app with the Push Notifications capability and configure
+the agent with an Apple Developer APNs key.
+
+Checklist:
+
+1. Use a paid Apple Developer Program team.
+2. Enable Push Notifications for the `com.barmor.quickdesk` App ID.
+3. Regenerate the provisioning profile so it includes `aps-environment`.
+4. Rebuild and reinstall the iPhone app.
+5. Confirm the Agent tab shows a registered push device.
+6. Start the agent with APNs environment variables:
 
 ```bash
 export QUICKDESK_APNS_KEY_ID="ABC123DEFG"
@@ -48,6 +58,10 @@ npm start
 Use `production` for `QUICKDESK_APNS_ENV` only for TestFlight/App Store builds.
 Xcode development installs use `sandbox`. APNs requires a paid Apple Developer
 Program team; personal development teams cannot create push-enabled profiles.
+
+If Xcode reports that the provisioning profile does not include Push
+Notifications or `aps-environment`, the code is ready but the Apple profile is
+not. Fix the App ID/profile in Apple Developer, then rebuild.
 
 ## Run continuously (launchd service)
 
