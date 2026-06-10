@@ -1,23 +1,67 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { platform } from "node:os";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const AGENT_ROOT = join(__dirname, "..");
 const REPO_ROOT = join(AGENT_ROOT, "..");
+const OS = platform(); // 'darwin' | 'win32' | 'linux'
 
 function shQuote(value) {
   return `'${String(value).replace(/'/g, "'\\''")}'`;
 }
 
-function terminalScript(command) {
-  const escaped = command.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-  return `osascript -e 'tell application "Terminal" to activate' -e 'tell application "Terminal" to do script "${escaped}"'`;
+// PowerShell -EncodedCommand accepts UTF-16LE base64 — avoids all quoting issues.
+function winPsEncodedCommand(psCommand) {
+  const encoded = Buffer.from(psCommand, "utf16le").toString("base64");
+  return `start powershell -NoExit -EncodedCommand ${encoded}`;
+}
+
+// Open a new terminal window and run a command in the given directory.
+function cdAndRun(dir, cmd) {
+  if (OS === "win32") {
+    const psCmd = `Set-Location -LiteralPath '${dir.replace(/'/g, "''")}'; ${cmd}`;
+    return winPsEncodedCommand(psCmd);
+  }
+  if (OS === "darwin") {
+    const shellCmd = `cd ${shQuote(dir)} && ${cmd}`;
+    const escaped = shellCmd.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+    return `osascript -e 'tell application "Terminal" to activate' -e 'tell application "Terminal" to do script "${escaped}"'`;
+  }
+  // Linux fallback
+  return `x-terminal-emulator -e bash -c ${shQuote(`cd ${shQuote(dir)} && ${cmd}; exec bash`)}`;
+}
+
+// Open a new terminal window and run a command (no directory change).
+function terminalRun(cmd) {
+  if (OS === "win32") return winPsEncodedCommand(cmd);
+  if (OS === "darwin") {
+    const escaped = cmd.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+    return `osascript -e 'tell application "Terminal" to activate' -e 'tell application "Terminal" to do script "${escaped}"'`;
+  }
+  return `x-terminal-emulator -e bash -c ${shQuote(`${cmd}; exec bash`)}`;
+}
+
+// Open a file/folder with the default handler.
+function openFile(filePath) {
+  if (OS === "darwin") return `open ${shQuote(filePath)}`;
+  if (OS === "win32") return `start "" "${filePath.replace(/"/g, '\\"')}"`;
+  return `xdg-open ${shQuote(filePath)}`;
+}
+
+// Kill processes listening on common dev ports.
+function freePortsCommand() {
+  if (OS === "win32") {
+    return `powershell -Command "3000,3001,5173,7420,8080 | ForEach-Object { Get-NetTCPConnection -LocalPort $_ -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue } }"`;
+  }
+  return "lsof -ti tcp:3000,3001,5173,7420,8080 | xargs kill -9 2>/dev/null || true";
 }
 
 export function developerPackTasks() {
-  const repoRoot = shQuote(REPO_ROOT);
-  const agentRoot = shQuote(AGENT_ROOT);
-  return [
+  const isMac = OS === "darwin";
+  const isWin = OS === "win32";
+
+  const tasks = [
     {
       id: "open-codex",
       name: "Open Codex",
@@ -25,8 +69,7 @@ export function developerPackTasks() {
       category: "Development",
       requiresConfirmation: false,
       actions: [
-        { type: "openApp", value: "Terminal", order: 1 },
-        { type: "runCommand", value: terminalScript(`cd ${repoRoot} && codex`), order: 2 },
+        { type: "runCommand", value: cdAndRun(REPO_ROOT, "codex"), order: 1 },
       ],
     },
     {
@@ -36,20 +79,26 @@ export function developerPackTasks() {
       category: "Development",
       requiresConfirmation: false,
       actions: [
-        { type: "openApp", value: "Terminal", order: 1 },
-        { type: "runCommand", value: terminalScript(`cd ${repoRoot} && claude`), order: 2 },
+        { type: "runCommand", value: cdAndRun(REPO_ROOT, "claude"), order: 1 },
       ],
     },
-    {
-      id: "open-quickdesk-xcode",
-      name: "Open QuickDesk in Xcode",
-      icon: "hammer.circle.fill",
-      category: "Development",
-      requiresConfirmation: false,
-      actions: [
-        { type: "runCommand", value: `open ${shQuote(join(REPO_ROOT, "ios", "QuickDesk.xcodeproj"))}`, order: 1 },
-      ],
-    },
+
+    // Xcode tasks are macOS-only (Xcode doesn't exist on Windows/Linux)
+    ...(isMac
+      ? [
+          {
+            id: "open-quickdesk-xcode",
+            name: "Open QuickDesk in Xcode",
+            icon: "hammer.circle.fill",
+            category: "Development",
+            requiresConfirmation: false,
+            actions: [
+              { type: "runCommand", value: openFile(join(REPO_ROOT, "ios", "QuickDesk.xcodeproj")), order: 1 },
+            ],
+          },
+        ]
+      : []),
+
     {
       id: "run-agent-tests",
       name: "Run Agent Tests",
@@ -57,23 +106,33 @@ export function developerPackTasks() {
       category: "Development",
       requiresConfirmation: false,
       actions: [
-        { type: "runCommand", value: terminalScript(`cd ${agentRoot} && npm test`), order: 1 },
+        { type: "runCommand", value: cdAndRun(AGENT_ROOT, "npm test"), order: 1 },
       ],
     },
-    {
-      id: "build-ios-watch",
-      name: "Build iPhone + Watch",
-      icon: "iphone.and.arrow.forward",
-      category: "Development",
-      requiresConfirmation: false,
-      actions: [
-        {
-          type: "runCommand",
-          value: terminalScript(`cd ${repoRoot} && xcodebuild -project ios/QuickDesk.xcodeproj -scheme QuickDesk -configuration Debug -destination 'generic/platform=iOS' build`),
-          order: 1,
-        },
-      ],
-    },
+
+    // iOS/watchOS build requires Xcode — macOS only
+    ...(isMac
+      ? [
+          {
+            id: "build-ios-watch",
+            name: "Build iPhone + Watch",
+            icon: "iphone.and.arrow.forward",
+            category: "Development",
+            requiresConfirmation: false,
+            actions: [
+              {
+                type: "runCommand",
+                value: cdAndRun(
+                  REPO_ROOT,
+                  `xcodebuild -project ios/QuickDesk.xcodeproj -scheme QuickDesk -configuration Debug -destination 'generic/platform=iOS' build`
+                ),
+                order: 1,
+              },
+            ],
+          },
+        ]
+      : []),
+
     {
       id: "open-github-repo",
       name: "Open GitHub Repo",
@@ -101,7 +160,15 @@ export function developerPackTasks() {
       category: "System",
       requiresConfirmation: false,
       actions: [
-        { type: "runCommand", value: terminalScript("tailscale status || echo 'Tailscale CLI not found'"), order: 1 },
+        {
+          type: "runCommand",
+          value: terminalRun(
+            isWin
+              ? "tailscale status; if (-not $?) { Write-Output 'Tailscale CLI not found' }"
+              : "tailscale status || echo 'Tailscale CLI not found'"
+          ),
+          order: 1,
+        },
       ],
     },
     {
@@ -111,7 +178,7 @@ export function developerPackTasks() {
       category: "Development",
       requiresConfirmation: true,
       actions: [
-        { type: "runCommand", value: "lsof -ti tcp:3000,3001,5173,7420,8080 | xargs kill -9 2>/dev/null || true", order: 1 },
+        { type: "runCommand", value: freePortsCommand(), order: 1 },
       ],
     },
     {
@@ -121,13 +188,17 @@ export function developerPackTasks() {
       category: "Development",
       requiresConfirmation: false,
       actions: [
-        { type: "openApp", value: "Terminal", order: 1 },
-        { type: "runCommand", value: `open ${shQuote(join(REPO_ROOT, "ios", "QuickDesk.xcodeproj"))}`, order: 2 },
+        { type: "runCommand", value: cdAndRun(REPO_ROOT, "echo 'QuickDesk ready'"), order: 1 },
+        ...(isMac
+          ? [{ type: "runCommand", value: openFile(join(REPO_ROOT, "ios", "QuickDesk.xcodeproj")), order: 2 }]
+          : []),
         { type: "openUrl", value: "http://127.0.0.1:7420/local", order: 3 },
         { type: "openUrl", value: "https://github.com/barmor12/QuickDesk", order: 4 },
       ],
     },
   ];
+
+  return tasks;
 }
 
 export function mergeDeveloperPack(existingTasks) {
