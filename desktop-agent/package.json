@@ -1,16 +1,21 @@
 {
   "name": "quickdesk-agent",
-  "version": "1.0.0",
-  "description": "QuickDesk Watch desktop agent - executes predefined tasks sent from the iPhone/Apple Watch over the local network.",
+  "version": "2.0.0",
+  "description": "QuickDesk Watch desktop agent - executes predefined tasks sent from the iPhone/Apple Watch over the local network. Cross-platform (macOS, Windows, Linux).",
   "type": "module",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "bin": {
-    "quickdesk-agent": "src/index.js"
+    "quickdesk-agent": "dist/index.js"
   },
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "node --watch src/index.js",
-    "test": "node --test"
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsc -p tsconfig.json && node --test \"dist/test/\"",
+    "ui:build": "npm --prefix ui run build",
+    "ui:dev": "npm --prefix ui run dev"
   },
   "engines": {
     "node": ">=18"
@@ -20,6 +25,14 @@
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.0",
+    "@types/ws": "^8.5.10",
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.0"
   },
   "license": "MIT"
 }

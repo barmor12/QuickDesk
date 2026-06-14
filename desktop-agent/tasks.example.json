@@ -1,28 +1,28 @@
 {
   "tasks": [
     {
-      "id": "start-project",
-      "name": "Start Dev Workspace",
+      "id": "focus-work-mode",
+      "name": "Focus Work Mode",
+      "icon": "sparkles",
+      "category": "Work",
+      "requiresConfirmation": false,
+      "actions": [
+        { "type": "openUrl", "value": "https://mail.google.com", "order": 1 },
+        { "type": "openUrl", "value": "https://calendar.google.com", "order": 2 },
+        { "type": "openUrl", "value": "https://claude.ai", "order": 3 },
+        { "type": "openUrl", "value": "https://chatgpt.com", "order": 4 }
+      ]
+    },
+    {
+      "id": "start-dev-session",
+      "name": "Start Dev Session",
       "icon": "hammer.circle.fill",
       "category": "Development",
       "requiresConfirmation": false,
       "actions": [
-        { "type": "openApp", "value": "Visual Studio Code", "order": 1 },
-        { "type": "openApp", "value": "Terminal", "order": 2 },
-        { "type": "openUrl", "value": "http://localhost:3000", "order": 3 },
-        { "type": "openUrl", "value": "http://127.0.0.1:7420/local", "order": 4 }
-      ]
-    },
-    {
-      "id": "ai-command-center",
-      "name": "AI Command Center",
-      "icon": "sparkles",
-      "category": "Development",
-      "requiresConfirmation": false,
-      "actions": [
-        { "type": "openApp", "value": "Claude", "order": 1 },
-        { "type": "openApp", "value": "ChatGPT", "order": 2 },
-        { "type": "openApp", "value": "Terminal", "order": 3 }
+        { "type": "openApp", "value": { "darwin": "Visual Studio Code", "win32": "code", "linux": "code" }, "order": 1 },
+        { "type": "openApp", "value": { "darwin": "Terminal", "win32": "wt", "linux": "x-terminal-emulator" }, "order": 2 },
+        { "type": "openUrl", "value": "http://localhost:3000", "order": 3 }
       ]
     },
     {
@@ -32,40 +32,143 @@
       "category": "Development",
       "requiresConfirmation": false,
       "actions": [
-        { "type": "openApp", "value": "Terminal", "order": 1 },
-        { "type": "runCommand", "value": "osascript -e 'tell application \"Terminal\" to activate' -e 'tell application \"Terminal\" to do script \"claude\"'", "order": 2 }
+        {
+          "type": "runCommand",
+          "value": {
+            "darwin": "osascript -e 'tell application \"Terminal\" to activate' -e 'tell application \"Terminal\" to do script \"claude\"'",
+            "win32": "start \"\" cmd /k claude",
+            "linux": "x-terminal-emulator -e claude"
+          },
+          "order": 1
+        }
       ]
     },
     {
-      "id": "focus-work-mode",
-      "name": "Focus Work Mode",
-      "icon": "briefcase.circle.fill",
+      "id": "open-codex",
+      "name": "Open Codex",
+      "icon": "terminal.fill",
+      "category": "Development",
+      "requiresConfirmation": false,
+      "actions": [
+        {
+          "type": "runCommand",
+          "value": {
+            "darwin": "osascript -e 'tell application \"Terminal\" to activate' -e 'tell application \"Terminal\" to do script \"codex\"'",
+            "win32": "start \"\" cmd /k codex",
+            "linux": "x-terminal-emulator -e codex"
+          },
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "new-meeting",
+      "name": "Start a Meeting",
+      "icon": "video.circle.fill",
       "category": "Work",
       "requiresConfirmation": false,
       "actions": [
-        { "type": "openUrl", "value": "https://mail.google.com", "order": 1 },
-        { "type": "openUrl", "value": "https://calendar.google.com", "order": 2 },
-        { "type": "openUrl", "value": "https://linear.app", "order": 3 }
+        { "type": "openUrl", "value": "https://meet.new", "order": 1 }
       ]
     },
     {
-      "id": "quickdesk-agent",
-      "name": "Open Agent Panel",
-      "icon": "wave.3.right.circle.fill",
-      "category": "Custom",
+      "id": "mute-audio",
+      "name": "Mute Audio",
+      "icon": "speaker.slash.circle.fill",
+      "category": "Media",
       "requiresConfirmation": false,
       "actions": [
-        { "type": "openUrl", "value": "http://127.0.0.1:7420/local", "order": 1 }
+        {
+          "type": "runCommand",
+          "value": {
+            "darwin": "osascript -e 'set volume with output muted'",
+            "win32": "powershell -NoProfile -Command \"(New-Object -ComObject WScript.Shell).SendKeys([char]173)\"",
+            "linux": "pactl set-sink-mute @DEFAULT_SINK@ toggle"
+          },
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "screenshot-desktop",
+      "name": "Screenshot",
+      "icon": "camera.viewfinder",
+      "category": "Quick",
+      "requiresConfirmation": false,
+      "actions": [
+        {
+          "type": "runCommand",
+          "value": {
+            "darwin": "screencapture \"$HOME/Desktop/QuickDesk-$(date +%Y%m%d-%H%M%S).png\"",
+            "win32": "powershell -NoProfile -Command \"Add-Type -AssemblyName System.Windows.Forms,System.Drawing; $b=[System.Windows.Forms.Screen]::PrimaryScreen.Bounds; $bmp=New-Object System.Drawing.Bitmap $b.Width,$b.Height; $g=[System.Drawing.Graphics]::FromImage($bmp); $g.CopyFromScreen($b.Location,[System.Drawing.Point]::Empty,$b.Size); $p=Join-Path ([Environment]::GetFolderPath('Desktop')) ('QuickDesk-'+(Get-Date -Format yyyyMMdd-HHmmss)+'.png'); $bmp.Save($p)\"",
+            "linux": "scrot \"$HOME/Desktop/QuickDesk-$(date +%Y%m%d-%H%M%S).png\""
+          },
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "open-downloads",
+      "name": "Open Downloads",
+      "icon": "arrow.down.circle.fill",
+      "category": "Quick",
+      "requiresConfirmation": false,
+      "actions": [
+        {
+          "type": "runCommand",
+          "value": {
+            "darwin": "open \"$HOME/Downloads\"",
+            "win32": "start \"\" \"%USERPROFILE%\\Downloads\"",
+            "linux": "xdg-open \"$HOME/Downloads\""
+          },
+          "order": 1
+        }
       ]
     },
     {
       "id": "free-dev-ports",
       "name": "Free Dev Ports",
-      "icon": "network",
+      "icon": "xmark.octagon.fill",
       "category": "Development",
       "requiresConfirmation": true,
       "actions": [
-        { "type": "runCommand", "value": "lsof -ti tcp:3000,3001,5173,8080 | xargs kill -9 2>/dev/null || true", "order": 1 }
+        {
+          "type": "runCommand",
+          "value": {
+            "darwin": "lsof -ti tcp:3000,3001,5173,8080 | xargs kill -9 2>/dev/null || true",
+            "win32": "powershell -NoProfile -Command \"Get-NetTCPConnection -LocalPort 3000,3001,5173,8080 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }\"",
+            "linux": "fuser -k 3000/tcp 3001/tcp 5173/tcp 8080/tcp 2>/dev/null || true"
+          },
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "empty-trash",
+      "name": "Empty Trash",
+      "icon": "trash.circle.fill",
+      "category": "System",
+      "requiresConfirmation": true,
+      "actions": [
+        {
+          "type": "runCommand",
+          "value": {
+            "darwin": "osascript -e 'tell application \"Finder\" to empty trash'",
+            "win32": "powershell -NoProfile -Command \"Clear-RecycleBin -Force -ErrorAction SilentlyContinue\"",
+            "linux": "rm -rf \"$HOME/.local/share/Trash/files/\"* \"$HOME/.local/share/Trash/info/\"* 2>/dev/null || true"
+          },
+          "order": 1
+        }
+      ]
+    },
+    {
+      "id": "sleep-computer",
+      "name": "Sleep Computer",
+      "icon": "moon.circle.fill",
+      "category": "System",
+      "requiresConfirmation": true,
+      "actions": [
+        { "type": "systemAction", "value": "sleep", "order": 1 }
       ]
     },
     {
@@ -73,9 +176,19 @@
       "name": "Lock Computer",
       "icon": "lock.circle.fill",
       "category": "System",
-      "requiresConfirmation": true,
+      "requiresConfirmation": false,
       "actions": [
         { "type": "systemAction", "value": "lock", "order": 1 }
+      ]
+    },
+    {
+      "id": "open-agent-panel",
+      "name": "Open Agent Panel",
+      "icon": "wave.3.right.circle.fill",
+      "category": "Quick",
+      "requiresConfirmation": false,
+      "actions": [
+        { "type": "openUrl", "value": "http://127.0.0.1:7420/local", "order": 1 }
       ]
     }
   ]

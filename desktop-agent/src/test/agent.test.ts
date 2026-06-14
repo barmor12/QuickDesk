@@ -1,18 +1,19 @@
-import { test, before, after } from "node:test";
+import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { platform } from "node:os";
 
 // Isolate persistence into a temp dir BEFORE importing modules that read it.
 process.env.QUICKDESK_DATA_DIR = mkdtempSync(join(tmpdir(), "quickdesk-test-"));
-process.env.QUICKDESK_PORT = "0"; // not used; we test modules directly
+process.env.QUICKDESK_PORT = "0";
 
-const { executeTask } = await import("../src/executor.js");
-const { armPairing, completePairing } = await import("../src/auth.js");
-const { generatePairingCode } = await import("../src/config.js");
-const { startLog, finishLog, listLogs } = await import("../src/logger.js");
-const { developerPackTasks, mergeDeveloperPack } = await import("../src/developer-pack.js");
+const { executeTask } = await import("../services/executor.service.js");
+const { armPairing, completePairing } = await import("../services/pairing.service.js");
+const { generatePairingCode } = await import("../repositories/identity.repo.js");
+const { startLog, finishLog, listLogs } = await import("../repositories/logs.repo.js");
+const { developerPackTasks, mergeDeveloperPack } = await import("../services/developer-pack.js");
 
 test("executeTask runs ordered actions and succeeds", async () => {
   const res = await executeTask({
@@ -26,6 +27,35 @@ test("executeTask runs ordered actions and succeeds", async () => {
   assert.equal(res.ok, true);
   assert.match(res.output, /first/);
   assert.match(res.output, /second/);
+});
+
+test("executeTask resolves a per-OS action value for the current platform", async () => {
+  const res = await executeTask({
+    id: "t-os",
+    name: "per-os echo",
+    actions: [
+      {
+        type: "runCommand",
+        value: { darwin: "echo on-mac", win32: "echo on-windows", linux: "echo on-linux" },
+        order: 1,
+      },
+    ],
+  });
+  assert.equal(res.ok, true);
+  const expected =
+    ({ darwin: "on-mac", win32: "on-windows", linux: "on-linux" } as Record<string, string>)[platform()] ||
+    "on-linux";
+  assert.match(res.output, new RegExp(expected));
+});
+
+test("executeTask reports when an action has no command for this OS", async () => {
+  const res = await executeTask({
+    id: "t-os-missing",
+    name: "missing os",
+    actions: [{ type: "runCommand", value: { plan9: "echo nope" } as never, order: 1 }],
+  });
+  assert.equal(res.ok, false);
+  assert.match(res.error, /no command defined for this OS/);
 });
 
 test("executeTask stops at first failing action", async () => {
@@ -58,13 +88,11 @@ test("pairing requires the correct armed code and is one-time", () => {
   const wrong = completePairing({ code: "000000", clientName: "x" });
   assert.equal(wrong.ok, false);
 
-  // re-arm because a failed attempt does not disarm, but let's be explicit
   armPairing(code);
   const ok = completePairing({ code, clientName: "iPhone" });
   assert.equal(ok.ok, true);
-  assert.ok(ok.token);
+  if (ok.ok) assert.ok(ok.token);
 
-  // code is now consumed
   const reuse = completePairing({ code, clientName: "iPhone" });
   assert.equal(reuse.ok, false);
 });
@@ -73,7 +101,7 @@ test("logs lifecycle: pending -> success", () => {
   const log = startLog({ taskId: "t1", taskName: "echo", computerId: "c1" });
   assert.equal(log.status, "pending");
   const done = finishLog(log.id, { status: "success", output: "ok", error: "" });
-  assert.equal(done.status, "success");
+  assert.equal(done?.status, "success");
   assert.ok(listLogs().some((l) => l.id === log.id));
 });
 

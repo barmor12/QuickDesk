@@ -11,4 +11,4 @@ if [[ -f "$ENV_FILE" ]]; then
   set +a
 fi
 
-exec /usr/bin/env node "$AGENT_DIR/src/index.js"
+exec /usr/bin/env node "$AGENT_DIR/dist/index.js"

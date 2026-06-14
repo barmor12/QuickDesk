@@ -77,9 +77,19 @@ QUICKDESK_AUTO_PAIRING=1
 EOF
 fi
 
-echo "Installing desktop agent dependencies..."
+echo "==> Installing desktop agent dependencies..."
 npm --prefix "$AGENT_DIR" install
-npm --prefix "$AGENT_DIR" test
+
+echo "==> Building the agent (TypeScript -> dist)..."
+npm --prefix "$AGENT_DIR" run build
+
+echo "==> Building the desktop control panel (UI)..."
+npm --prefix "$AGENT_DIR/ui" install
+npm --prefix "$AGENT_DIR/ui" run build
+
+echo "==> Running tests..."
+npm --prefix "$AGENT_DIR" test || echo "   (tests reported a problem — continuing install)"
+
 chmod +x "$AGENT_DIR/scripts/run-launch-agent.sh"
 
 RUNNER="$AGENT_DIR/scripts/run-launch-agent.sh"

@@ -2,7 +2,13 @@
 
 # Node
 desktop-agent/node_modules/
+desktop-agent/ui/node_modules/
 npm-debug.log*
+
+# Build output
+desktop-agent/dist/
+desktop-agent/ui/dist/
+*.tsbuildinfo
 
 # QuickDesk local data
 .quickdesk/

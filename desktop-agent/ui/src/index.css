@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-ink-950 text-slate-100 font-sans antialiased;
+    background-image:
+      radial-gradient(60rem 60rem at 12% -10%, rgba(45, 212, 191, 0.12), transparent 55%),
+      radial-gradient(55rem 55rem at 110% 10%, rgba(99, 102, 241, 0.16), transparent 50%),
+      radial-gradient(40rem 40rem at 50% 120%, rgba(139, 92, 246, 0.1), transparent 60%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    @apply bg-brand-teal/30;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply rounded-2xl border border-white/10 bg-white/[0.04] shadow-glass backdrop-blur-xl;
+  }
+
+  .card-title {
+    @apply flex items-center gap-2.5 text-sm font-semibold uppercase tracking-wider text-slate-400;
+  }
+
+  .btn {
+    @apply inline-flex select-none items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm
+      font-semibold transition-all duration-200 cursor-pointer focus-visible:outline-none
+      focus-visible:ring-2 focus-visible:ring-brand-teal/60 disabled:cursor-default disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply btn bg-gradient-to-br from-brand-teal to-brand-cyan text-ink-950 hover:brightness-110
+      shadow-[0_8px_24px_-8px_rgba(45,212,191,0.6)];
+  }
+
+  .btn-ghost {
+    @apply btn border border-white/10 bg-white/[0.03] text-slate-200 hover:bg-white/[0.08];
+  }
+
+  .btn-warn {
+    @apply btn border border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20;
+  }
+
+  .btn-danger {
+    @apply btn border border-rose-500/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
