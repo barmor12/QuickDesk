@@ -50,14 +50,63 @@ enum ActionType: String, Codable, CaseIterable {
     case openApp, openUrl, runCommand, runScript, systemAction
 }
 
+/// An action's command value. It is either a single string (same on every OS)
+/// or a per-OS map ({ "darwin": ..., "win32": ..., "linux": ... }) so one task
+/// runs the right command on macOS, Windows, or Linux. The app only displays
+/// and triggers tasks, so it keeps the raw value and exposes a display string.
+enum ActionValue: Codable, Hashable {
+    case single(String)
+    case perOS([String: String])
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let string = try? container.decode(String.self) {
+            self = .single(string)
+        } else if let map = try? container.decode([String: String].self) {
+            self = .perOS(map)
+        } else {
+            self = .single("")
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch self {
+        case .single(let string): try container.encode(string)
+        case .perOS(let map): try container.encode(map)
+        }
+    }
+
+    /// A human-readable string for the UI (prefers the current platform).
+    var display: String {
+        switch self {
+        case .single(let string):
+            return string
+        case .perOS(let map):
+            #if os(macOS)
+            return map["darwin"] ?? map.values.first ?? ""
+            #else
+            return map["darwin"] ?? map["win32"] ?? map["linux"] ?? map.values.first ?? ""
+            #endif
+        }
+    }
+}
+
 struct TaskAction: Codable, Hashable {
     var type: ActionType
-    var value: String
+    var value: ActionValue
     var order: Int
 }
 
 enum TaskCategory: String, Codable, CaseIterable {
-    case Work, Development, System, Custom
+    case Work, Development, System, Media, Quick, Custom
+
+    // Tolerate unknown categories from newer agents instead of failing to
+    // decode the whole task list.
+    init(from decoder: Decoder) throws {
+        let raw = try decoder.singleValueContainer().decode(String.self)
+        self = TaskCategory(rawValue: raw) ?? .Custom
+    }
 }
 
 /// A predefined task the agent can execute. Named `AgentTask` to avoid clashing

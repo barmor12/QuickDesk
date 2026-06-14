@@ -33,7 +33,7 @@ struct TasksView: View {
     private var filteredTasks: [AgentTask] {
         state.tasks.filter { task in
             let matchesCategory = category == nil || task.category == category
-            let text = "\(task.name) \(task.category.rawValue) \(task.actions.map(\.value).joined(separator: " "))"
+            let text = "\(task.name) \(task.category.rawValue) \(task.actions.map(\.value.display).joined(separator: " "))"
             let matchesQuery = query.isEmpty || text.localizedCaseInsensitiveContains(query)
             return matchesCategory && matchesQuery
         }
@@ -315,17 +315,19 @@ struct TaskCard: View {
         case .Development: return .indigo
         case .Work: return AppTheme.teal
         case .System: return .orange
+        case .Media: return .cyan
+        case .Quick: return .green
         case .Custom: return .pink
         }
     }
 
     private func actionSummary(_ action: TaskAction) -> String {
         switch action.type {
-        case .openApp: return "Opens \(action.value)"
-        case .openUrl: return "Launches \(action.value)"
-        case .runCommand: return "Runs command: \(action.value)"
-        case .runScript: return "Runs script: \(action.value)"
-        case .systemAction: return "System action: \(action.value)"
+        case .openApp: return "Opens \(action.value.display)"
+        case .openUrl: return "Launches \(action.value.display)"
+        case .runCommand: return "Runs command: \(action.value.display)"
+        case .runScript: return "Runs script: \(action.value.display)"
+        case .systemAction: return "System action: \(action.value.display)"
         }
     }
 }
@@ -389,7 +391,7 @@ struct TaskDetailView: View {
                             Text(action.type.rawValue)
                                 .font(.caption.weight(.bold))
                                 .foregroundStyle(AppTheme.teal)
-                            Text(action.value)
+                            Text(action.value.display)
                                 .font(.system(.subheadline, design: .monospaced))
                         }
                     }

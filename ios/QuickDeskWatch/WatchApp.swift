@@ -29,6 +29,8 @@ enum WatchTheme {
         case .Development: return indigo
         case .Work: return teal
         case .System: return amber
+        case .Media: return Color(red: 0.40, green: 0.80, blue: 0.95)
+        case .Quick: return Color(red: 0.55, green: 0.78, blue: 0.55)
         case .Custom: return Color(red: 0.95, green: 0.42, blue: 0.62)
         }
     }
